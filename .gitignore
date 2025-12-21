@@ -1,0 +1,315 @@
+# Gradle
+.gradle/
+build/
+
+# Local properties
+*.properties
+*.local
+
+# Logs
+*.log
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Environment
+.env
+.env.local
+
+# Dependencies
+*.jar
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Kotlin
+*.kotlin_module
+
+# Build outputs
+out/
+
+# Test results
+test-results/
+
+# Local configuration
+gradle.properties
+local.properties
+
+# API keys and secrets
+*.key
+*.secret
+*.pem
+
+# Compressed files
+*.zip
+*.tar
+*.gz
+
+# Database files
+*.db
+*.sqlite
+
+# Cache
+.cache/
+*.cache
+
+# Node modules
+node_modules/
+
+# Python
+__pycache__/
+*.pyc
+
+# Java
+*.class
+
+# IntelliJ
+.idea/
+*.iml
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux
+*.swp
+*.swo
+
+# Android
+local.properties
+*.apk
+*.aab
+
+# Build
+build/
+
+# Gradle cache
+gradle/
+
+# Kotlin cache
+kotlin/
+
+# Test coverage
+coverage/
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.production
+
+# Secrets
+secrets.properties
+api-keys.properties
+
+# Local configuration
+config/
+
+# Temporary files
+temp/
+tmp/
+
+# Backup files
+*.bak
+*.backup
+
+# Log files
+*.log
+logs/
+
+# Documentation build
+docs/
+
+# IDE specific
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Version control
+.vscode/
+.git/
+.svn/
+
+# Build artifacts
+*.jar
+*.war
+*.ear
+
+# Dependency directories
+lib/
+libraries/
+
+# Generated files
+generated/
+
+# Test files
+test/
+
+# Configuration files
+config/
+
+# Local overrides
+local/
+
+# Custom
+custom/
+
+# Gradle wrapper
+gradlew
+gradlew.bat
+gradle/
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Android Studio
+.idea/
+*.iml
+local.properties
+
+# Eclipse
+.bin
+.classpath
+.project
+.settings/
+
+# NetBeans
+nbproject/
+
+# VS Code
+.vscode/
+
+# Other
+*.swp
+*.swo
+*.bak
+*.tmp
+*.log
+
+# Build outputs
+build/
+out/
+dist/
+
+# Dependency cache
+.cache/
+
+# Environment
+.env
+.env.local
+
+# Secrets
+secrets/
+keys/
+
+# Local configuration
+config.local/
+
+# Test results
+test-results/
+
+# Coverage reports
+coverage/
+
+# Documentation
+docs/
+
+# Temporary
+temp/
+tmp/
+
+# Backup
+backup/
+
+# Logs
+logs/
+
+# Cache
+.cache/
+
+# IDE
+.idea/
+*.iml
+
+# Version control
+.git/
+.svn/
+
+# Build
+build/
+
+# Gradle
+gradle/
+
+# Kotlin
+kotlin/
+
+# Test
+test/
+
+# Config
+config/
+
+# Local
+local/
+
+# Custom
+custom/
+
+# Generated
+generated/
+
+# Dependency
+lib/
+libraries/
+
+# Artifacts
+*.jar
+*.war
+*.ear
+
+# Logs
+*.log
+logs/
+
+# Temp
+temp/
+tmp/
+
+# Backup
+*.bak
+*.backup
+
+# IDE
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# VS Code
+.vscode/
+
+# Mac
+.DS_Store
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Linux
+*.swp
+*.swo

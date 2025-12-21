@@ -1,0 +1,12 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
+        google()
+        mavenCentral()
+    }
+}
+
+rootProject.name = "gemini-client"
+
+include ':ai:gemini'
+project(':ai:gemini').projectDir = file('ai/gemini')
