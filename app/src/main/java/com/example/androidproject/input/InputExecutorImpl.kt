@@ -42,6 +42,18 @@ class InputExecutorImpl(
         }
     }
 
+    /**
+     * Executes an input command (tap, swipe, scroll, or type) on the main thread and reports the result via the callback.
+     *
+     * If the executor is not ready, invokes the callback with `InputResult.Failure` and `ErrorType.SERVICE_NOT_AVAILABLE`.
+     * If another command is already executing, invokes the callback with `InputResult.Failure` and `ErrorType.INVALID_STATE`.
+     * Sets an internal executing flag while the command runs, dispatches the work to the main handler, routes the command
+     * to the appropriate handler, and ensures the executing flag is cleared when finished. If an unexpected exception
+     * occurs during execution, invokes the callback with `InputResult.Failure` and `ErrorType.UNKNOWN`.
+     *
+     * @param command The input command to perform (TapCommand, SwipeCommand, ScrollCommand, or TypeCommand).
+     * @param callback Invoked with an InputResult describing success or the specific failure reason.
+     */
     override fun executeCommand(command: InputCommand, callback: (InputResult) -> Unit) {
         if (!isReady()) {
             callback(
@@ -89,12 +101,29 @@ class InputExecutorImpl(
         }
     }
 
+    /**
+     * Checks whether the executor is ready to accept a new input command.
+     *
+     * Ready when the implementation has initialized successfully, the accessibility service has a root in the active window, and no command is currently executing.
+     *
+     * @return `true` if ready to accept a command, `false` otherwise.
+     */
     override fun isReady(): Boolean {
         return isInitialized.get() && 
                accessibilityService.rootInActiveWindow != null &&
                isExecuting.get() == false
     }
 
+    /**
+     * Executes a tap gesture described by the given TapCommand and delivers the outcome through the callback.
+     *
+     * Validates active window availability and coordinate bounds, then dispatches either a single-point tap
+     * or a simultaneous multi-point tap using the command's duration.
+     *
+     * @param command The tap command containing one or more points and a gesture duration in milliseconds.
+     * @param callback Invoked with an InputResult: on failure when no active window exists (`INVALID_STATE`)
+     * or when coordinates are out of bounds (`INVALID_COORDINATES`), or with success when the gesture completes.
+     */
     private fun executeTap(command: InputCommand.TapCommand, callback: (InputResult) -> Unit) {
         val rootNode = accessibilityService.rootInActiveWindow
             ?: run {
@@ -151,6 +180,17 @@ class InputExecutorImpl(
         }
     }
 
+    /**
+     * Performs a swipe gesture from the command's start coordinates to its end coordinates and dispatches it.
+     *
+     * Validates that an active window exists and that the start/end coordinates are within bounds;
+     * on validation failure invokes `callback` with an `InputResult.Failure`.
+     *
+     * @param command Swipe configuration including startX, startY, endX, endY and durationMs.
+     * @param callback Invoked with `InputResult.Success` when the gesture completes or `InputResult.Failure`
+     *                 for errors such as no active window (`INVALID_STATE`) or invalid coordinates
+     *                 (`INVALID_COORDINATES`).
+     */
     private fun executeSwipe(command: InputCommand.SwipeCommand, callback: (InputResult) -> Unit) {
         val rootNode = accessibilityService.rootInActiveWindow
             ?: run {
@@ -200,6 +240,16 @@ class InputExecutorImpl(
         )
     }
 
+    /**
+     * Executes a relative scroll gesture starting at the command's (x, y) and moving by (deltaX, deltaY).
+     *
+     * If the active window root is unavailable or coordinates are out of bounds, invokes the `callback` with
+     * an `InputResult.Failure` describing the error; otherwise dispatches a scroll gesture and delivers the result
+     * via the `callback`.
+     *
+     * @param command The scroll command containing start coordinates, deltas, and duration.
+     * @param callback Invoked with the resulting `InputResult` (success or failure).
+     */
     private fun executeScroll(command: InputCommand.ScrollCommand, callback: (InputResult) -> Unit) {
         val rootNode = accessibilityService.rootInActiveWindow
             ?: run {
@@ -249,6 +299,14 @@ class InputExecutorImpl(
         )
     }
 
+    /**
+     * Types the given text into the currently focused editable node in the active window and reports the outcome via the callback.
+     *
+     * If no active window is available the callback receives an `INVALID_STATE` failure. If no focused editable node is found the callback receives a `FOCUS_NOT_FOUND` failure. If text injection fails because the input method is not active the callback receives `INPUT_METHOD_NOT_ACTIVE`. Permission errors are reported as `PERMISSION_DENIED`; all other failures are reported as `UNKNOWN`.
+     *
+     * @param command The `TypeCommand` containing the text to input and any input options.
+     * @param callback Invoked with `InputResult.Success` on success (metadata includes `textLength` and `viewId`) or `InputResult.Failure` with an appropriate `ErrorType` on failure.
+     */
     private fun executeType(command: InputCommand.TypeCommand, callback: (InputResult) -> Unit) {
         try {
             val rootNode = accessibilityService.rootInActiveWindow
@@ -318,6 +376,13 @@ class InputExecutorImpl(
         }
     }
 
+    /**
+     * Dispatches a gesture through the AccessibilityService and reports success or failure via the provided callback.
+     *
+     * @param gesture The GestureDescription to dispatch.
+     * @param callback Invoked with an InputResult: `Success` when the gesture completes (includes `description` in metadata), or `Failure` when the gesture is cancelled or dispatch fails (includes an error type and optional exception).
+     * @param description Human-readable description of the gesture used for logging and included in success metadata.
+     */
     private fun dispatchGesture(
         gesture: GestureDescription,
         callback: (InputResult) -> Unit,
@@ -369,6 +434,12 @@ class InputExecutorImpl(
         }
     }
 
+    /**
+     * Finds the first focused, editable node in the accessibility node subtree rooted at the given node.
+     *
+     * @param rootNode The root of the subtree to search.
+     * @return The focused, editable `AccessibilityNodeInfo` if one is found; `null` otherwise.
+     */
     private fun findFocusedNode(rootNode: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         val queue = ArrayDeque<AccessibilityNodeInfo>()
         queue.add(rootNode)
@@ -388,6 +459,14 @@ class InputExecutorImpl(
         return null
     }
 
+    /**
+     * Checks whether all points are within the rectangular bounds from (0,0) to (maxX,maxY), inclusive.
+     *
+     * @param points The list of points to validate.
+     * @param maxX The maximum allowed X coordinate; values less than 0 are treated as 0.
+     * @param maxY The maximum allowed Y coordinate; values less than 0 are treated as 0.
+     * @return `true` if every point satisfies 0 <= x <= maxX and 0 <= y <= maxY, `false` otherwise.
+     */
     private fun validateCoordinates(points: List<Point>, maxX: Int, maxY: Int): Boolean {
         return points.all { point ->
             point.x >= 0 && point.x <= maxX.coerceAtLeast(0) &&
@@ -395,6 +474,12 @@ class InputExecutorImpl(
         }
     }
 
+    /**
+     * Simulates committing the provided text to the currently focused input target.
+     *
+     * @param command The TypeCommand containing the text to input and any related metadata.
+     * @return `true` if the simulated text input succeeded, `false` otherwise.
+     */
     private fun performTextInput(command: InputCommand.TypeCommand): Boolean {
         return try {
             // This simulates text input by using the InputMethodManager
