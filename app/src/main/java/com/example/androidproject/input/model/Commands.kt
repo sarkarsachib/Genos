@@ -84,11 +84,11 @@ data class Point(
     val y: Int
 ) {
     /**
-     * Validates that the point is within acceptable bounds.
-     * 
-     * @param maxX Maximum X coordinate (screen width)
-     * @param maxY Maximum Y coordinate (screen height)
-     * @return true if the point is valid
+     * Checks whether this point lies within the inclusive bounds from (0, 0) to (maxX, maxY).
+     *
+     * @param maxX The maximum allowed X coordinate (inclusive).
+     * @param maxY The maximum allowed Y coordinate (inclusive).
+     * @return `true` if `0 <= x <= maxX` and `0 <= y <= maxY`, `false` otherwise.
      */
     fun isValid(maxX: Int, maxY: Int): Boolean {
         return x >= 0 && x <= maxX && y >= 0 && y <= maxY

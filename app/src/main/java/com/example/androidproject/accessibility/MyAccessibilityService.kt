@@ -14,12 +14,23 @@ class MyAccessibilityService : AccessibilityService() {
     private val tag = "MyAccessibilityService"
     private lateinit var inputExecutor: InputExecutor
     
+    /**
+     * Performs startup for the accessibility service and initializes the input executor.
+     *
+     * Called when the service is created to set up internal resources required to handle input commands.
+     */
     override fun onCreate() {
         super.onCreate()
         Log.d(tag, "AccessibilityService created")
         initializeInputExecutor()
     }
 
+    /**
+     * Initializes the service's InputExecutor instance.
+     *
+     * Attempts to construct and assign an InputExecutorImpl to [inputExecutor]. On success logs a debug
+     * message; on failure catches the exception, logs an error, and leaves [inputExecutor] uninitialized.
+     */
     private fun initializeInputExecutor() {
         try {
             inputExecutor = InputExecutorImpl(this, this)
@@ -29,16 +40,32 @@ class MyAccessibilityService : AccessibilityService() {
         }
     }
 
+    /**
+     * Handles an incoming accessibility event by logging its event type.
+     *
+     * @param event The received AccessibilityEvent; if `null`, the event is ignored.
+     */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         event?.let {
             Log.d(tag, "Accessibility event: ${AccessibilityEvent.eventTypeToString(it.eventType)}")
         }
     }
 
+    /**
+     * Handles an interruption of the accessibility service.
+     *
+     * Logs a warning indicating the service has been interrupted.
+     */
     override fun onInterrupt() {
         Log.w(tag, "AccessibilityService interrupted")
     }
 
+    /**
+     * Called when the accessibility service is connected; logs the connection and available service capabilities.
+     *
+     * When the service's configuration is available (`serviceInfo`), logs its flags to aid in diagnosing gesture
+     * and capability settings.
+     */
     override fun onServiceConnected() {
         super.onServiceConnected()
         Log.i(tag, "AccessibilityService connected")
@@ -49,14 +76,27 @@ class MyAccessibilityService : AccessibilityService() {
         }
     }
 
+    /**
+     * Handles the accessibility service being destroyed.
+     *
+     * Logs the destruction and invokes the superclass teardown.
+     */
     override fun onDestroy() {
         Log.d(tag, "AccessibilityService destroyed")
         super.onDestroy()
     }
 
     /**
-     * Executes an input command if the service is ready.
-     * This method provides access to the InputExecutor capabilities.
+     * Execute an input command using the service's input executor.
+     *
+     * If the executor is ready, the command is executed and the provided callback
+     * receives the resulting `InputResult`. If the executor is not ready, the
+     * callback is invoked with an `InputResult.Failure` whose reason is
+     * "Accessibility service not ready for input execution" and `errorType` is
+     * `InputResult.ErrorType.SERVICE_NOT_AVAILABLE`.
+     *
+     * @param command The input command to execute.
+     * @param callback Receives the `InputResult` produced by executing the command.
      */
     fun executeInputCommand(command: InputCommand, callback: (InputResult) -> Unit) {
         if (!::inputExecutor.isInitialized) {
@@ -76,7 +116,11 @@ class MyAccessibilityService : AccessibilityService() {
     }
 
     /**
-     * Checks if the service and InputExecutor are ready for command execution.
+     * Reports whether the accessibility service is prepared to execute input commands.
+     *
+     * Returns `false` if the `InputExecutor` has not been initialized or is not ready.
+     *
+     * @return `true` if the service and its `InputExecutor` are ready to accept commands, `false` otherwise.
      */
     fun isInputReady(): Boolean {
         return if (::inputExecutor.isInitialized) {

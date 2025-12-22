@@ -28,6 +28,12 @@ class InputDebugHarnessActivity : ComponentActivity() {
     private lateinit var serviceHandler: Handler
     private val isTesting = AtomicBoolean(false)
     
+    /**
+     * Initializes the activity: sets up a main‑thread Handler, logs creation, and sets the Compose UI
+     * that provides controls for tap, swipe, scroll, and type test actions.
+     *
+     * @param savedInstanceState If non-null, this Activity is being re-initialized from a previous saved state.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         
@@ -45,6 +51,14 @@ class InputDebugHarnessActivity : ComponentActivity() {
         }
     }
     
+    /**
+     * Enqueues a simulated tap test at the given screen coordinates, preventing concurrent tests.
+     *
+     * Schedules a short-delayed simulated tap command and forwards the resulting InputResult to the activity's test result handler.
+     *
+     * @param x X coordinate in pixels where the tap should be simulated.
+     * @param y Y coordinate in pixels where the tap should be simulated.
+     */
     private fun testTap(x: Int, y: Int) {
         if (isTesting.get()) {
             Log.w(tag, "Test already in progress, please wait")
@@ -70,6 +84,17 @@ class InputDebugHarnessActivity : ComponentActivity() {
         }, 500)
     }
     
+    /**
+     * Initiates a simulated swipe test using the provided start and end coordinates.
+     *
+     * If a test is already in progress, this function returns without starting a new test.
+     * Otherwise it queues a simulated swipe command and handles a synthetic success result when complete.
+     *
+     * @param startX X coordinate of the swipe start.
+     * @param startY Y coordinate of the swipe start.
+     * @param endX X coordinate of the swipe end.
+     * @param endY Y coordinate of the swipe end.
+     */
     private fun testSwipe(startX: Int, startY: Int, endX: Int, endY: Int) {
         if (isTesting.get()) {
             Log.w(tag, "Test already in progress, please wait")
@@ -97,6 +122,12 @@ class InputDebugHarnessActivity : ComponentActivity() {
         }, 1000)
     }
     
+    /**
+     * Schedules a simulated scroll test using the provided X and Y deltas and forwards the simulated result to the test result handler.
+     *
+     * @param deltaX Horizontal scroll delta in pixels; positive values scroll right, negative scroll left.
+     * @param deltaY Vertical scroll delta in pixels; positive values scroll down, negative scroll up.
+     */
     private fun testScroll(deltaX: Int, deltaY: Int) {
         if (isTesting.get()) {
             Log.w(tag, "Test already in progress, please wait")
@@ -123,6 +154,16 @@ class InputDebugHarnessActivity : ComponentActivity() {
         }, 750)
     }
     
+    /**
+     * Queues a simulated typing test for the provided text.
+     *
+     * If a test is already in progress or the text is blank, the function returns without action.
+     * Otherwise it marks testing as in progress, schedules a short delayed simulated type command,
+     * and delivers the resulting `InputResult` to the test result handler; the in-progress flag
+     * is cleared after the simulated result is handled.
+     *
+     * @param text Text to simulate typing. Blank text is ignored.
+     */
     private fun testType(text: String) {
         if (isTesting.get()) {
             Log.w(tag, "Test already in progress, please wait")
@@ -155,6 +196,15 @@ class InputDebugHarnessActivity : ComponentActivity() {
         }, 1200)
     }
     
+    /**
+     * Logs the outcome of an input test identified by [testType].
+     *
+     * If [result] is `Success`, logs an informational message containing the success message.
+     * If [result] is `Failure`, logs an error containing the failure reason and associated throwable.
+     *
+     * @param testType Short label identifying the test (e.g., "Tap", "Swipe").
+     * @param result The input test result to log.
+     */
     private fun handleTestResult(testType: String, result: com.example.androidproject.input.model.InputResult) {
         when (result) {
             is com.example.androidproject.input.model.InputResult.Success -> {
@@ -171,6 +221,22 @@ class InputDebugHarnessActivity : ComponentActivity() {
     }
 }
 
+/**
+ * UI for a debug harness that lets the user configure and trigger input-emulation tests:
+ * tap, swipe, scroll, and type.
+ *
+ * The composable renders controls for each command and calls the corresponding callback
+ * when the user initiates a test; it also displays a brief status and the last queued result.
+ *
+ * @param onTestTap Invoked when the user requests a tap test. Receives the X and Y screen
+ * coordinates (pixels) where the tap should be simulated.
+ * @param onTestSwipe Invoked when the user requests a swipe test. Receives startX, startY,
+ * endX, and endY coordinates (pixels) describing the drag gesture.
+ * @param onTestScroll Invoked when the user requests a scroll test. Receives deltaX and deltaY
+ * (pixels) describing the scroll vector; positive values scroll right/down.
+ * @param onTestType Invoked when the user requests a type test. Receives the text to be
+ * injected into the currently focused input.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun InputDebugHarnessContent(

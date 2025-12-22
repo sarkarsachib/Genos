@@ -11,23 +11,29 @@ import com.example.androidproject.input.model.InputResult
 interface InputExecutor {
 
     /**
-     * Executes an input command asynchronously and reports the result via callback.
-     * 
-     * @param command The InputCommand to execute
-     * @param callback Called when execution completes (success or failure)
-     */
+ * Execute the given InputCommand and deliver the resulting InputResult to the provided callback.
+ *
+ * @param command The input command to execute.
+ * @param callback Invoked with the resulting InputResult when execution completes (success or failure encoded in the InputResult).
+ */
     fun executeCommand(command: InputCommand, callback: (InputResult) -> Unit)
 
     /**
-     * Checks if the input executor is ready and all required services are available.
-     * 
-     * @return true if ready for command execution
-     */
+ * Indicates whether the executor is prepared to accept and run input commands.
+ *
+ * @return `true` if all required services are available and the executor can execute commands, `false` otherwise.
+ */
     fun isReady(): Boolean
 }
 
 /**
- * Extension function for mapping command types to human-readable descriptions.
+ * Produces a human-readable description of an InputCommand.
+ *
+ * @return A description string:
+ * - Tap: "Tap at ((x1, y1), (x2, y2), ...)"
+ * - Swipe: "Swipe from (startX, startY) to (endX, endY) in <durationMs>ms"
+ * - Scroll: "Scroll [deltaX, deltaY] with <scrollDurationMs>ms duration"
+ * - Type: "Type text: 'textPreview...'" where `textPreview` is the first 20 characters and "..." is appended if the text is longer than 20 characters
  */
 fun InputCommand.description(): String {
     return when (this) {

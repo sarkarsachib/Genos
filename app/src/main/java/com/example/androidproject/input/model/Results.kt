@@ -45,17 +45,27 @@ sealed class InputResult {
     }
 
     /**
-     * Convenience method to check if the result represents success.
-     */
+ * Reports whether this instance represents a success result.
+ *
+ * @return `true` if this instance is of type `Success`, `false` otherwise.
+ */
     fun isSuccess(): Boolean = this is Success
 
     /**
-     * Convenience method to check if the result represents failure.
-     */
+ * Checks whether this result is a Failure.
+ *
+ * @return `true` if this is a Failure, `false` otherwise.
+ */
     fun isFailure(): Boolean = this is Failure
 
     /**
-     * Convenience method to get a human-readable description of the result.
+     * Produces a human-readable description of this input result.
+     *
+     * For a Success, returns the success message. For a Failure, returns the reason
+     * and appends the underlying error's message in parentheses if an error exists.
+     *
+     * @return The result description: the success message for Success, or the failure
+     * reason optionally followed by the error message in parentheses for Failure.
      */
     fun description(): String {
         return when (this) {
