@@ -27,6 +27,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".debug.InputDebugHarnessActivity"
+            android:exported="true"
+            android:label="Input Debug Harness"
+            android:theme="@style/Theme.AndroidProject" />
+
         <service
             android:name=".accessibility.MyAccessibilityService"
             android:exported="true"
