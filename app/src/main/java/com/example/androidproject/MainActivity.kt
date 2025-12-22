@@ -9,6 +9,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
 class MainActivity : ComponentActivity() {
+    /**
+     * Initializes the activity and sets the Jetpack Compose UI to display the Greeting composable.
+     *
+     * @param savedInstanceState If non-null, a Bundle containing the activity's previously saved state. 
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -17,6 +22,12 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Displays a greeting message using the given name.
+ *
+ * @param name The name to include in the greeting text.
+ * @param modifier Modifier to apply to the Text composable.
+ */
 @Composable
 fun Greeting(name: String, modifier: Modifier = Modifier) {
     Text(
@@ -25,6 +36,9 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     )
 }
 
+/**
+ * Renders a design-time preview of Greeting using the name "Android".
+ */
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
