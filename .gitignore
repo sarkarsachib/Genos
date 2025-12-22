@@ -1,0 +1,90 @@
+# Project-specific ignores
+.gradle/
+build/
+local.properties
+*.iml
+.idea/
+.DS_Store
+Thumbs.db
+
+# Gradle files
+.gradle/
+build/
+
+# Local configuration files
+local.properties
+proguard/
+
+# IDE files
+*.iws
+*.ipr
+.idea/
+*.iml
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/libraries
+.idea/jarRepositories.xml
+
+# Android Studio
+.idea/
+.idea/misc.xml
+.idea/render.experimental.xml
+.idea/assetWizardSettings.xml
+.idea/dictionaries
+.idea/libraries
+
+# Eclipse
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+# Eclipse project files
+.classpath
+.project
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+
+# NetBeans
+/nbproject/private/
+/build/
+/nbdist/
+/.nb-gradle/
+
+# Visual Studio Code
+.vscode/
+.history/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+*~
+
+# Operating System
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
