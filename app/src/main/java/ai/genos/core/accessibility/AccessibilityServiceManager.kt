@@ -23,7 +23,13 @@ class AccessibilityServiceManager {
     private var lastHeartbeat = 0L
     
     /**
-     * Record an app transition
+     * Adds an app transition to the manager's history and notifies registered listeners.
+     *
+     * The transition is appended to the internal history and the history is trimmed to
+     * the configured maximum size if necessary. Registered ServiceStateListener instances
+     * are notified of the recorded transition.
+     *
+     * @param transition The app transition to record.
      */
     fun recordTransition(transition: AppTransition) {
         transitionLock.write {
@@ -40,7 +46,11 @@ class AccessibilityServiceManager {
     }
     
     /**
-     * Get recent transitions
+     * Retrieve up to the specified number of most recent transitions.
+     *
+     * @param limit The maximum number of transitions to return (defaults to 10). If `limit` is greater than
+     * the available history, all recorded transitions are returned.
+     * @return A list of up to `limit` most recent `AppTransition` objects in chronological order (oldest first).
      */
     fun getRecentTransitions(limit: Int = 10): List<AppTransition> {
         return transitionLock.read {
@@ -49,7 +59,11 @@ class AccessibilityServiceManager {
     }
     
     /**
-     * Get all transitions
+     * Return a snapshot of the full transition history.
+     *
+     * The returned list is a copy of the stored transitions at the time of the call.
+     *
+     * @return A list of all recorded AppTransition objects in chronological order (oldest first).
      */
     fun getAllTransitions(): List<AppTransition> {
         return transitionLock.read {
@@ -58,7 +72,9 @@ class AccessibilityServiceManager {
     }
     
     /**
-     * Clear transition history
+     * Removes all recorded app transitions from the manager's history.
+     *
+     * After this call, the transition history is empty until new transitions are recorded.
      */
     fun clearTransitions() {
         transitionLock.write {
@@ -67,7 +83,12 @@ class AccessibilityServiceManager {
     }
     
     /**
-     * Update service running state
+     * Set the current service running state and record a heartbeat timestamp.
+     *
+     * Updates the internal running flag, refreshes the last heartbeat to the current time,
+     * and notifies registered listeners of the state change.
+     *
+     * @param isRunning `true` to mark the service as running, `false` to mark it as stopped.
      */
     fun updateServiceState(isRunning: Boolean) {
         isServiceRunning = isRunning
@@ -78,14 +99,20 @@ class AccessibilityServiceManager {
     }
     
     /**
-     * Check if service is running
+     * Determines whether the accessibility service is currently considered running.
+     *
+     * @return `true` if the service was marked running and its last heartbeat occurred within the past 30 seconds, `false` otherwise.
      */
     fun isServiceRunning(): Boolean {
         return isServiceRunning && (System.currentTimeMillis() - lastHeartbeat) < 30000 // 30 second timeout
     }
     
     /**
-     * Get service statistics
+     * Fetches aggregated statistics about the accessibility service and its transition history.
+     *
+     * @return A ServiceStatistics containing totalTransitions (number of recorded transitions),
+     *         isServiceRunning (whether the service is considered running), lastHeartbeat (epoch ms),
+     *         and currentTime (current epoch ms).
      */
     fun getServiceStatistics(): ServiceStatistics {
         return transitionLock.read {
@@ -99,7 +126,12 @@ class AccessibilityServiceManager {
     }
     
     /**
-     * Add service state listener
+     * Registers a listener to receive notifications about app transitions and service state changes.
+     *
+     * Registration is thread-safe; the listener will start receiving callbacks for subsequent transitions
+     * and state updates.
+     *
+     * @param listener The ServiceStateListener to register.
      */
     fun addServiceStateListener(listener: ServiceStateListener) {
         synchronized(listeners) {
@@ -108,7 +140,9 @@ class AccessibilityServiceManager {
     }
     
     /**
-     * Remove service state listener
+     * Unregisters a service state listener so it will no longer receive transition or state-change notifications.
+     *
+     * @param listener The listener to remove.
      */
     fun removeServiceStateListener(listener: ServiceStateListener) {
         synchronized(listeners) {
@@ -116,6 +150,14 @@ class AccessibilityServiceManager {
         }
     }
     
+    /**
+     * Notifies all registered service state listeners of a new app transition.
+     *
+     * Calls `onTransition` on each listener with the provided transition and catches/logs
+     * exceptions from individual listeners so notification continues for others.
+     *
+     * @param transition The `AppTransition` to deliver to each listener.
+     */
     private fun notifyTransitionListeners(transition: AppTransition) {
         synchronized(listeners) {
             listeners.forEach { listener ->
@@ -128,6 +170,14 @@ class AccessibilityServiceManager {
         }
     }
     
+    /**
+     * Notify all registered ServiceStateListener instances that the service running state has changed.
+     *
+     * Listener callbacks are invoked under synchronization; exceptions thrown by individual listeners
+     * are caught and logged so notification of other listeners continues.
+     *
+     * @param isRunning `true` when the service is running, `false` otherwise.
+     */
     private fun notifyStateChangeListeners(isRunning: Boolean) {
         synchronized(listeners) {
             listeners.forEach { listener ->
@@ -143,8 +193,18 @@ class AccessibilityServiceManager {
 
 // Service state listener interface
 interface ServiceStateListener {
-    fun onTransition(transition: AppTransition)
-    fun onStateChanged(isRunning: Boolean)
+    /**
+ * Invoked when an application transition is recorded.
+ *
+ * @param transition Details of the recorded application transition event.
+ */
+fun onTransition(transition: AppTransition)
+    /**
+ * Called when the global accessibility service running state changes.
+ *
+ * @param isRunning `true` if the service is currently running, `false` otherwise.
+ */
+fun onStateChanged(isRunning: Boolean)
 }
 
 // Service statistics data class

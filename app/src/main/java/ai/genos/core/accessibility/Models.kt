@@ -88,13 +88,28 @@ data class CommandResult(
 
 // Event listener interfaces
 interface AccessibilityEventListener {
-    fun onAccessibilityEvent(event: android.view.accessibility.AccessibilityEvent)
+    /**
+ * Called when the system delivers an accessibility event for the observed UI.
+ *
+ * @param event The Android `AccessibilityEvent` describing the UI change or interaction.
+ */
+fun onAccessibilityEvent(event: android.view.accessibility.AccessibilityEvent)
 }
 
 interface AppContextListener {
-    fun onAppTransition(transition: AppTransition)
+    /**
+ * Called when the active app or activity transitions, delivering the transition details.
+ *
+ * @param transition Details of the app/activity transition, including timestamp, source and destination package and activity names, and event type.
+ */
+fun onAppTransition(transition: AppTransition)
 }
 
 interface UiTreeListener {
-    fun onTreeChanged(snapshot: UiTreeSnapshot)
+    /**
+ * Notifies that the UI tree has changed.
+ *
+ * @param snapshot Snapshot of the entire UI tree at the time of the change, including the root node and related context.
+ */
+fun onTreeChanged(snapshot: UiTreeSnapshot)
 }
