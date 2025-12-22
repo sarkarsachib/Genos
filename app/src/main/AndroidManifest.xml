@@ -49,6 +49,25 @@
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.GenosCore">
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    <application
+        android:allowBackup="true"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AndroidProject"
+        android:requestLegacyExternalStorage="true"
+        tools:targetApi="31">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.AndroidProject">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -70,6 +89,10 @@
         <service
             android:name=".service.GenosAccessibilityService"
             android:exported="true"
+        <service
+            android:name=".accessibility.MyAccessibilityService"
+            android:exported="true"
+            android:label="@string/accessibility_service_label"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
             <intent-filter>
                 <action android:name="android.accessibilityservice.AccessibilityService" />
@@ -96,6 +119,9 @@
         <service
             android:name=".service.InputProcessingService"
             android:enabled="true"
+        <service
+            android:name=".vision.ScreenCaptureService"
+            android:foregroundServiceType="mediaProjection"
             android:exported="false" />
 
     </application>

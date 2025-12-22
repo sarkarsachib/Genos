@@ -27,3 +27,7 @@
 # Keep Tesseract classes
 -keep class com.googlecode.tesseract.** { *; }
 -dontwarn com.googlecode.tesseract.**
+# By default, the flags in this file are appended to flags specified
+# in /files/proguard-android-optimize.txt
+# You can edit the include path and order by changing the proguardFiles
+# directive in build.gradle.
