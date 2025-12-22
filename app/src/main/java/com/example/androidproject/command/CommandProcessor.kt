@@ -4,6 +4,22 @@ import android.util.Log
 
 class CommandProcessor {
     
+    /**
+     * Parses a single textual command and returns the corresponding `Command` object.
+     *
+     * Supported command formats:
+     * - `tap x y` — tap at coordinates `x` and `y`.
+     * - `swipe startX startY endX endY [duration]` — swipe from start to end; `duration` in ms, defaults to 300.
+     * - `scroll <UP|DOWN|LEFT|RIGHT> [duration]` — scroll in the given direction; `duration` in ms, defaults to 500.
+     * - `input <text...>` — input the remaining text as a single string.
+     * - `wait duration` — wait for `duration` milliseconds.
+     * - `back`, `home`, `recents` — simple navigation commands.
+     *
+     * Tokens are separated by whitespace. Parsing failures, unrecognized commands, or missing/invalid arguments result in `null`.
+     *
+     * @param input The command string to parse.
+     * @return The parsed `Command` on success, or `null` if the input is empty, malformed, or unrecognized.
+     */
     fun parseCommand(input: String): Command? {
         val tokens = input.trim().split("\s+")
         if (tokens.isEmpty()) return null
@@ -63,6 +79,12 @@ class CommandProcessor {
         }
     }
     
+    /**
+     * Parse a multi-line command string into a list of Command objects.
+     *
+     * @param commands A string containing one command per line; lines that are empty or start with `#` are ignored.
+     * @return A list of successfully parsed Command instances in the same order they appeared in the input.
+     */
     fun parseCommands(commands: String): List<Command> {
         val lines = commands.lines()
         val parsedCommands = mutableListOf<Command>()
@@ -77,6 +99,12 @@ class CommandProcessor {
         return parsedCommands
     }
     
+    /**
+     * Produce a human-readable description of a Command for display.
+     *
+     * @param command The command to format.
+     * @return A descriptive string for the given command. Coordinate values are converted to integers; text and durations are shown verbatim (duration in milliseconds).
+     */
     fun formatCommandForDisplay(command: Command): String {
         return when (command) {
             is Command.Tap -> "Tap at (${command.x.toInt()}, ${command.y.toInt()})"
