@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@color/overlay_background"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:elevation="4dp">
+
+    <!-- Drag Handle -->
+    <LinearLayout
+        android:id="@+id/drag_handle"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:gravity="center_horizontal"
+        android:orientation="horizontal"
+        android:background="@color/overlay_handle_background"
+        android:paddingTop="4dp"
+        android:paddingBottom="4dp">
+
+        <View
+            android:layout_width="40dp"
+            android:layout_height="2dp"
+            android:background="@color/overlay_handle_dot"
+            android:layout_gravity="center" />
+
+    </LinearLayout>
+
+    <!-- GENOS Status -->
+    <TextView
+        android:id="@+id/status_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="GENOS 1.0.0 | Idle"
+        android:textColor="@color/overlay_text_primary"
+        android:textSize="12sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginTop="4dp"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Current App -->
+    <TextView
+        android:id="@+id/app_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="App: Unknown"
+        android:textColor="@color/overlay_text_secondary"
+        android:textSize="10sp"
+        android:gravity="center"
+        android:layout_marginBottom="4dp" />
+
+    <!-- Gemini Decision -->
+    <TextView
+        android:id="@+id/gemini_decision_text"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Gemini: No decision available"
+        android:textColor="@color/overlay_text_tertiary"
+        android:textSize="10sp"
+        android:gravity="center"
+        android:layout_marginBottom="8dp"
+        android:maxLines="2"
+        android:ellipsize="end" />
+
+    <!-- Controls Section -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="@color/overlay_controls_background"
+        android:padding="4dp">
+
+        <!-- Automation Toggle -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:layout_marginBottom="4dp">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Automation"
+                android:textColor="@color/overlay_text_primary"
+                android:textSize="10sp" />
+
+            <ToggleButton
+                android:id="@+id/automation_toggle"
+                android:layout_width="wrap_content"
+                android:layout_height="24dp"
+                android:textOn="ON"
+                android:textOff="OFF"
+                android:textSize="8sp"
+                android:minWidth="40dp"
+                android:minHeight="20dp"
+                android:background="@drawable/overlay_toggle_button" />
+
+        </LinearLayout>
+
+        <!-- Action Buttons -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:weightSum="2">
+
+            <Button
+                android:id="@+id/execute_mock_plan"
+                android:layout_width="0dp"
+                android:layout_height="28dp"
+                android:layout_weight="1"
+                android:text="Execute Mock Plan"
+                android:textSize="8sp"
+                android:textColor="@color/overlay_button_text"
+                android:background="@drawable/overlay_button_background"
+                android:layout_marginEnd="2dp"
+                android:padding="2dp" />
+
+            <Button
+                android:id="@+id/inject_test_command"
+                android:layout_width="0dp"
+                android:layout_height="28dp"
+                android:layout_weight="1"
+                android:text="Test Command"
+                android:textSize="8sp"
+                android:textColor="@color/overlay_button_text"
+                android:background="@drawable/overlay_button_background"
+                android:layout_marginStart="2dp"
+                android:padding="2dp" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</LinearLayout>
