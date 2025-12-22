@@ -16,6 +16,9 @@ class LogActivity : AppCompatActivity() {
     private lateinit var clearButton: Button
     private lateinit var refreshButton: Button
     
+    /**
+     * Initialize the activity: set the layout, configure the toolbar, bind views, attach click listeners, and load log contents.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_log)
@@ -26,6 +29,9 @@ class LogActivity : AppCompatActivity() {
         loadLogs()
     }
     
+    /**
+     * Sets up the activity toolbar as the support action bar, enables the up (back) button, and sets the title to "GENOS Service Logs".
+     */
     private fun setupToolbar() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
@@ -33,6 +39,9 @@ class LogActivity : AppCompatActivity() {
         supportActionBar?.title = "GENOS Service Logs"
     }
     
+    /**
+     * Binds the activity's log TextView and control buttons to their view instances and enables scrolling for the log display.
+     */
     private fun initializeViews() {
         logTextView = findViewById(R.id.log_text_view)
         clearButton = findViewById(R.id.clear_logs_button)
@@ -42,6 +51,12 @@ class LogActivity : AppCompatActivity() {
         logTextView.movementMethod = ScrollingMovementMethod()
     }
     
+    /**
+     * Register click listeners for the Clear and Refresh buttons.
+     *
+     * The Clear button removes all stored logs and refreshes the displayed log view.
+     * The Refresh button reloads the displayed logs.
+     */
     private fun setupClickListeners() {
         clearButton.setOnClickListener {
             Logger.clearLogs()
@@ -53,6 +68,12 @@ class LogActivity : AppCompatActivity() {
         }
     }
     
+    /**
+     * Loads stored log text into the activity's log TextView and scrolls it to the bottom.
+     *
+     * If log content is available, sets the TextView text to the logs and scrolls to show the latest lines.
+     * If no log content is available, sets the TextView text to "No logs available".
+     */
     private fun loadLogs() {
         val logContents = Logger.getLogContents()
         if (logContents != null) {
@@ -68,6 +89,11 @@ class LogActivity : AppCompatActivity() {
         }
     }
     
+    /**
+     * Handle the toolbar "up" button by performing back navigation.
+     *
+     * @return `true` to indicate the navigation event was handled.
+     */
     override fun onSupportNavigateUp(): Boolean {
         onBackPressed()
         return true

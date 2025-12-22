@@ -24,7 +24,14 @@ object Logger {
     private var isFileLoggingEnabled = false
     
     /**
-     * Initialize file logging
+     * Initializes file-based logging for the accessibility service.
+     *
+     * Creates a "logs" directory under the application's files directory, rotates existing log files
+     * to maintain history, sets the active log file, and enables file logging. On successful
+     * initialization an informational entry is written; on failure file logging is disabled and a
+     * warning is emitted to the Android log.
+     *
+     * @param context The Android context used to resolve the app's files directory for storing logs.
      */
     fun initializeFileLogging(context: android.content.Context) {
         try {
@@ -50,7 +57,14 @@ object Logger {
     }
     
     /**
-     * Log info level message
+     * Log an informational message to the Android log and, when enabled, to the rotated file log.
+     *
+     * The Android log tag is prefixed with the Logger tag prefix. When file logging is enabled an
+     * INFO entry is appended to the active log file and the throwable's stack trace is included if provided.
+     *
+     * @param tag Short identifier for the log entry; the Logger's tag prefix is prepended before sending to Android Log.
+     * @param message The message text to log.
+     * @param throwable Optional throwable whose stack trace will be logged alongside the message.
      */
     fun logInfo(tag: String, message: String, throwable: Throwable? = null) {
         val fullTag = TAG_PREFIX + tag
@@ -62,7 +76,11 @@ object Logger {
     }
     
     /**
-     * Log debug level message
+     * Logs a debug-level message using the GENOS-prefixed tag and optionally records it to the active log file.
+     *
+     * @param tag The log tag (the function will prepend the internal "GENOS_" prefix).
+     * @param message The message to log.
+     * @param throwable Optional exception whose stack trace will be included with the log entry.
      */
     fun logDebug(tag: String, message: String, throwable: Throwable? = null) {
         if (BuildConfig.DEBUG) {
@@ -76,7 +94,11 @@ object Logger {
     }
     
     /**
-     * Log warning level message
+     * Log a warning message to the Android log and, if enabled, append it to the rotated file log.
+     *
+     * @param tag Log tag (will be prefixed with TAG_PREFIX).
+     * @param message The message to record.
+     * @param throwable Optional throwable whose stack trace will be included. 
      */
     fun logWarning(tag: String, message: String, throwable: Throwable? = null) {
         val fullTag = TAG_PREFIX + tag
@@ -88,7 +110,11 @@ object Logger {
     }
     
     /**
-     * Log error level message
+     * Logs an error-level message to Android Log and, if file logging is enabled, appends an ERROR entry to the active log file.
+     *
+     * @param tag The log tag (the implementation will prefix this tag with the package-specific tag prefix).
+     * @param message The log message to record.
+     * @param throwable Optional throwable whose stack trace will be included with the log entry.
      */
     fun logError(tag: String, message: String, throwable: Throwable? = null) {
         val fullTag = TAG_PREFIX + tag
@@ -100,7 +126,9 @@ object Logger {
     }
     
     /**
-     * Log verbose level message
+     * Logs a verbose-level message to Android's Log and, when file logging is enabled, appends a timestamped verbose entry to the active log file; only emits output in debug builds.
+     *
+     * @param throwable Optional throwable whose stack trace will be included with the log entry.
      */
     fun logVerbose(tag: String, message: String, throwable: Throwable? = null) {
         if (BuildConfig.DEBUG) {
@@ -114,7 +142,16 @@ object Logger {
     }
     
     /**
-     * Write log message to file
+     * Appends a timestamped log entry to the active file log, rotating files if the current file exceeds the size threshold.
+     *
+     * The entry is written with the configured file prefix and includes the provided level, tag, and message.
+     * If `throwable` is provided, its stack trace is appended on the next line.
+     * If file I/O fails, a warning is logged and the method returns without throwing.
+     *
+     * @param level Log level label to include in the entry (e.g., "INFO", "ERROR").
+     * @param tag Tag to include with the entry.
+     * @param message The log message body.
+     * @param throwable Optional throwable whose stack trace will be appended to the entry.
      */
     private fun writeToFile(level: String, tag: String, message: String, throwable: Throwable?) {
         try {
@@ -144,7 +181,12 @@ object Logger {
     }
     
     /**
-     * Rotate log files to maintain history
+     * Rotate existing accessibility_service log files in the given directory to maintain up to MAX_LOG_FILES history.
+     *
+     * Moves or renames files so that the most recent log stays at `accessibility_service.log` and older files are shifted
+     * to `accessibility_service.<n>.log`, deleting the oldest file when the maximum count is exceeded.
+     *
+     * @param logDir Directory containing the accessibility_service log files to rotate.
      */
     private fun rotateLogFiles(logDir: File) {
         try {
@@ -166,8 +208,11 @@ object Logger {
     }
     
     /**
-     * Get log file contents
-     */
+     * Retrieves the current active log file's contents as a single string.
+     *
+     * Returns the file contents if an active log file exists and can be read; returns `null` if no log file is configured, the file does not exist, or an error occurs while reading.
+     *
+     * @return The log file contents, or `null` when unavailable. */
     fun getLogContents(): String? {
         return try {
             val logFile = this.logFile ?: return null
@@ -183,7 +228,9 @@ object Logger {
     }
     
     /**
-     * Clear log files
+     * Deletes the current active log file used for file-based logging, if present.
+     *
+     * If an error occurs while deleting the file, the exception is caught and not propagated.
      */
     fun clearLogs() {
         try {
