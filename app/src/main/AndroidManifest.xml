@@ -87,6 +87,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".debug.InputDebugHarnessActivity"
+            android:exported="true"
+            android:label="Input Debug Harness"
+            android:theme="@style/Theme.AndroidProject" />
+
         <service
             android:name=".GenosAccessibilityService"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"

@@ -2,6 +2,8 @@
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeAllMask"
     android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagRequestTouchExplorationMode|flagIncludeNotImportantViews"
+    android:canPerformGestures="true"
     android:accessibilityFlags="flagDefault|flagRequestTouchExplorationMode|flagRetrieveInteractiveWindows"
     android:canRetrieveWindowContent="true"
     android:canRequestTouchExplorationMode="true"
@@ -11,5 +13,6 @@
     android:settingsActivity="ai.genos.core.ui.SettingsActivity" />
     android:accessibilityFlags="flagDefault"
     android:canRetrieveWindowContent="true"
+    android:canTakeScreenshot="true"
     android:description="@string/accessibility_service_description"
     android:notificationTimeout="100" />
