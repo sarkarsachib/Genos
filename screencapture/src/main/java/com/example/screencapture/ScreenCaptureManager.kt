@@ -45,15 +45,30 @@ class ScreenCaptureManager(
     }
 
     /**
-     * Helper to launch the permission intent.
-     * The Activity must handle onActivityResult and pass the result back to initialize().
+     * Starts the system screen-capture permission flow by launching the MediaProjection intent.
+     *
+     * The calling Activity must handle onActivityResult and pass the resulting data to startSession
+     * to complete initialization.
+     *
+     * @param activity The Activity used to start the permission intent.
+     * @param requestCode The request code to identify the permission result in onActivityResult.
      */
     fun requestScreenCapturePermission(activity: Activity, requestCode: Int) {
         activity.startActivityForResult(mediaProjectionManager.createScreenCaptureIntent(), requestCode)
     }
 
     /**
-     * Initialize the session with the permission result.
+     * Start a screen capture session using the provided MediaProjection permission result.
+     *
+     * Stops any existing session, obtains a MediaProjection from the supplied result, registers a stop callback,
+     * stores the requested capture dimensions and density, and initializes the virtual display and image reader.
+     *
+     * @param resultCode The result code returned to the Activity's onActivityResult.
+     * @param data The Intent data returned to onActivityResult containing the permission grant.
+     * @param screenWidth The target capture width in pixels.
+     * @param screenHeight The target capture height in pixels.
+     * @param screenDensity The display density (DPI) to use for the virtual display.
+     * @throws SecurityException if the permission result is not RESULT_OK.
      */
     fun startSession(resultCode: Int, data: Intent, screenWidth: Int, screenHeight: Int, screenDensity: Int) {
         if (resultCode != Activity.RESULT_OK) {
@@ -64,6 +79,12 @@ class ScreenCaptureManager(
         
         mediaProjection = mediaProjectionManager.getMediaProjection(resultCode, data)
         mediaProjection?.registerCallback(object : MediaProjection.Callback() {
+            /**
+             * Stops any active screen capture session and releases related resources when the host is stopped.
+             *
+             * Ensures MediaProjection, VirtualDisplay, ImageReader, and any active streams are terminated by
+             * delegating to stopSession().
+             */
             override fun onStop() {
                 super.onStop()
                 stopSession()
@@ -77,6 +98,15 @@ class ScreenCaptureManager(
         setupVirtualDisplay()
     }
 
+    /**
+     * Initializes the ImageReader and VirtualDisplay used for screen capture.
+     *
+     * If no MediaProjection is available, the method returns without changing state.
+     *
+     * The created ImageReader is configured for RGBA_8888 and the VirtualDisplay is
+     * attached to the ImageReader's surface; both are stored on the instance for use
+     * by capture methods.
+     */
     private fun setupVirtualDisplay() {
         if (mediaProjection == null) return
 
@@ -96,7 +126,12 @@ class ScreenCaptureManager(
     }
 
     /**
-     * Capture a single frame, process it, and return the result.
+     * Capture a single screen frame, run OCR processing on it, and deliver the result via the callback.
+     *
+     * If the MediaProjection session is not started, the callback is invoked with a failure.
+     * The callback is always invoked on the main thread with either a successful CaptureResult or a failure describing what went wrong (for example, failure to acquire a bitmap or processing errors).
+     *
+     * @param callback Receives a `Result<CaptureResult>`: `Result.success` contains the processed capture (bitmap and OCR blocks); `Result.failure` contains the encountered exception.
      */
     fun captureOnce(callback: (Result<CaptureResult>) -> Unit) {
         if (mediaProjection == null) {
@@ -128,10 +163,12 @@ class ScreenCaptureManager(
     }
 
     /**
-     * Start a continuous stream of captures.
-     * Note: This implementation pulls frames as fast as possible or could be throttled.
-     * For accessibility events, one might trigger captureOnce externally.
-     * Here we implement a simple loop or listener based approach.
+     * Starts a periodic screen-capture stream that processes each captured frame and reports results to the provided callback.
+     *
+     * If a stream is already running this call is a no-op. The callback is invoked on the main thread with OCR processing results for each captured frame.
+     *
+     * @param periodMs Interval in milliseconds between capture attempts. Defaults to 1000 (1 second).
+     * @param callback Receives a `Result<CaptureResult>` for each processed frame; success contains the capture result, failure contains the error.
      */
     fun startStream(periodMs: Long = 1000, callback: (Result<CaptureResult>) -> Unit) {
         if (isCapturing.get()) return
@@ -152,11 +189,22 @@ class ScreenCaptureManager(
         }
     }
 
+    /**
+     * Stops the ongoing screen capture stream and clears the callback used to deliver results.
+     *
+     * After calling this, no further frames will be captured or forwarded to the previous callback.
+     */
     fun stopStream() {
         isCapturing.set(false)
         streamCallback = null
     }
 
+    /**
+     * Stops capture activity and releases all media-projection resources.
+     *
+     * Stops any active capture stream, releases and clears the virtual display and image reader,
+     * and stops the media projection instance.
+     */
     fun stopSession() {
         stopStream()
         virtualDisplay?.release()
@@ -167,6 +215,12 @@ class ScreenCaptureManager(
         mediaProjection = null
     }
 
+    /**
+     * Retrieves the most recent image from the ImageReader and converts it to a Bitmap sized to the configured width and height.
+     *
+     * The underlying Image (if any) is consumed and closed; if the image plane contains row padding, the returned Bitmap is cropped to the target width and height.
+     *
+     * @return A Bitmap of dimensions `width x height` containing the latest captured frame, or `null` if no image was available.
     private fun acquireLatestBitmap(): Bitmap? {
         val image = imageReader?.acquireLatestImage() ?: return null
         
@@ -190,6 +244,12 @@ class ScreenCaptureManager(
         return bitmap
     }
 
+    /**
+     * Processes a captured bitmap with the OCR processor and delivers a CaptureResult (or failure) to the provided callback on the main thread.
+     *
+     * @param bitmap The captured bitmap to be analyzed by the OCR processor.
+     * @param callback Receives a `Result` containing a `CaptureResult` on success or the exception on failure; always invoked on the main thread.
+     */
     private fun processBitmap(bitmap: Bitmap, callback: (Result<CaptureResult>) -> Unit) {
         ocrProcessor.process(bitmap) { result ->
              result.onSuccess { textBlocks ->
