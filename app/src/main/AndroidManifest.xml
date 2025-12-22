@@ -1,7 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <application
+        android:allowBackup="true"
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Required permissions for Accessibility Service -->
+    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- System alert window for overlay functionality -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Foreground service permission (Android 9+) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+
+    <!-- Write secure settings placeholder - typically requires system signature or root -->
+    <!-- This permission is typically not granted to third-party apps -->
+    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Internet permission for potential ML Kit model downloads -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <!-- Media projection for screen capture -->
+    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
+        tools:ignore="ProtectedPermissions" />
+
+    <!-- Wake lock for keeping service active -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Post notifications for foreground services (Android 13+) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <application
+        android:name=".GenosApplication"
+        android:allowBackup="true"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        android:fullBackupContent="@xml/backup_rules"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.GenosAccessibility">
+
+        <activity
+            android:name=".PermissionActivity"
+            android:exported="true"
+            android:theme="@style/Theme.GenosAccessibility">
+        android:theme="@style/Theme.GenosCore"
+        tools:targetApi="31">
+
+        <!-- Main Activity -->
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/Theme.GenosCore">
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
@@ -34,6 +94,25 @@
             android:theme="@style/Theme.AndroidProject" />
 
         <service
+            android:name=".GenosAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+        <!-- Settings Activity for overlay permission -->
+        <activity
+            android:name=".ui.SettingsActivity"
+            android:exported="true"
+            android:label="@string/settings_title">
+            <intent-filter>
+                <action android:name="android.settings.MANAGE_OVERLAY_PERMISSION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
+
+        <!-- Accessibility Service -->
+        <service
+            android:name=".service.GenosAccessibilityService"
+            android:exported="true"
+        <service
             android:name=".accessibility.MyAccessibilityService"
             android:exported="true"
             android:label="@string/accessibility_service_label"
@@ -46,6 +125,26 @@
                 android:resource="@xml/accessibility_service_config" />
         </service>
 
+    </application>
+
+</manifest>
+        <!-- Screen Capture Service -->
+        <service
+            android:name=".service.ScreenCaptureService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="mediaProjection" />
+
+        <!-- Overlay Service -->
+        <service
+            android:name=".service.OverlayService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Input Processing Service -->
+        <service
+            android:name=".service.InputProcessingService"
+            android:enabled="true"
         <service
             android:name=".vision.ScreenCaptureService"
             android:foregroundServiceType="mediaProjection"

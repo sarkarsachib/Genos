@@ -1,4 +1,11 @@
 <resources>
+    <string name="app_name">Genos Core</string>
+    <string name="accessibility_service_description">Genos Accessibility Service provides enhanced input and interaction capabilities for the Genos AI assistant. This service can observe your screen content to provide contextual assistance.</string>
+    <string name="settings_title">Genos Settings</string>
+    <string name="permission_overlay_required">Overlay permission is required for Genos to function properly.</string>
+    <string name="permission_accessibility_required">Accessibility permission is required for Genos to observe screen content.</string>
+    <string name="service_running">Genos service is running</string>
+    <string name="service_stopped">Genos service stopped</string>
     <string name="app_name">Android Project</string>
     <string name="accessibility_service_label">My Accessibility Service</string>
     <string name="accessibility_service_description">Service for accessibility features.</string>
