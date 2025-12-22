@@ -50,6 +50,12 @@ class MainActivity : ComponentActivity() {
         }
     }
     
+    /**
+     * Initialize the activity and set the Compose UI, wiring MainScreen callbacks to the overlay,
+     * permission, and command handlers.
+     *
+     * @param savedInstanceState Optional saved state bundle used to restore previous UI state.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -61,6 +67,11 @@ class MainActivity : ComponentActivity() {
         }
     }
     
+    /**
+     * Initiates permission requests required by the app: prompts the user to grant the system
+     * overlay permission on Android Marshmallow (API 23) and above, and requests the remaining
+     * runtime permissions declared in `permissions`.
+     */
     private fun requestPermissions() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val overlayIntent = Intent(
@@ -74,6 +85,14 @@ class MainActivity : ComponentActivity() {
         ActivityCompat.requestPermissions(this, permissions, 100)
     }
     
+    /**
+     * Ensures the app can draw overlays and either starts the overlay service or requests the system
+     * overlay permission from the user.
+     *
+     * On Android M (API 23) and above this verifies whether the app has the "draw over other apps"
+     * permission; if granted, the overlay service is started, otherwise the system overlay permission
+     * settings screen is launched. On older Android versions the overlay service is started directly.
+     */
     private fun checkAndLaunchOverlay() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             when {
@@ -93,6 +112,11 @@ class MainActivity : ComponentActivity() {
         }
     }
     
+    /**
+     * Starts the overlay service and shows a brief confirmation to the user.
+     *
+     * Launches OverlayService with the `ACTION_START_MONITORING` action as a foreground service and displays a short "Overlay service started" toast.
+     */
     private fun launchOverlay() {
         val serviceIntent = Intent(this, OverlayService::class.java).apply {
             action = OverlayService.ACTION_START_MONITORING
@@ -101,6 +125,15 @@ class MainActivity : ComponentActivity() {
         Toast.makeText(this, "Overlay service started", Toast.LENGTH_SHORT).show()
     }
     
+    /**
+     * Sends a status update to the overlay service and executes simple user commands.
+     *
+     * Sends a broadcast containing the raw `command` as a status update to the overlay service.
+     * Additionally, interprets and executes the following commands:
+     * - "tap X Y": requests a touch visualization at coordinates X and Y (parses floats; uses 0f for any unparsable coordinate).
+     * - "ocr": requests an OCR operation from the overlay service.
+     *
+     * @param command The command string to send and (optionally) execute. */
     private fun sendCommand(command: String) {
         val intent = Intent(this, OverlayService::class.java).apply {
             action = OverlayService.ACTION_UPDATE_STATUS
@@ -129,6 +162,12 @@ class MainActivity : ComponentActivity() {
         }
     }
     
+    /**
+     * Requests the overlay service to display a touch visualization at the given screen coordinates.
+     *
+     * @param x The x coordinate in screen pixels where the touch visualization should appear.
+     * @param y The y coordinate in screen pixels where the touch visualization should appear.
+     */
     private fun showTouchVisualization(x: Float, y: Float) {
         val intent = Intent(this, OverlayService::class.java).apply {
             action = OverlayService.ACTION_SHOW_TOUCH
@@ -139,6 +178,18 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Main composable screen that provides controls to request permissions, start the overlay service, and send text commands.
+ *
+ * The UI includes an overlay status card, a button to request overlay and accessibility permissions, a button to launch
+ * the GENOS overlay service, a command console with an input field and quick-test buttons, and a scrollable status log.
+ *
+ * @param onLaunchOverlay Called when the user requests to launch the overlay service (Launch GENOS Overlay button).
+ * @param onRequestPermissions Called when the user requests permission prompts (Enable Overlay & Accessibility Permissions button).
+ * @param onSendCommand Called with the entered command string when the user sends a command. Supported command forms used by the screen include
+ *  - `tap X Y` — visualize a touch at coordinates X and Y
+ *  - `ocr` — request an OCR operation
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(

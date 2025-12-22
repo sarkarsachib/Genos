@@ -16,6 +16,12 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
     
     private val commandProcessor = CommandProcessor()
     
+    /**
+     * Executes a single Command by dispatching to the appropriate handler and logging the result.
+     *
+     * @param command The command to execute.
+     * @return `true` if execution completed without throwing an exception, `false` otherwise.
+     */
     suspend fun executeCommand(command: Command): Boolean {
         return try {
             when (command) {
@@ -36,11 +42,25 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         }
     }
     
+    /**
+     * Parses a command string and executes the resulting command.
+     *
+     * @param commandString A command encoded as a string that CommandProcessor can parse.
+     * @return `true` if the parsed command executed successfully, `false` if parsing failed or execution failed.
+     */
     suspend fun executeCommandString(commandString: String): Boolean {
         val command = commandProcessor.parseCommand(commandString) ?: return false
         return executeCommand(command)
     }
     
+    /**
+     * Executes a sequence of commands in order, stopping on the first failure.
+     *
+     * Each command is executed sequentially with a short (500 ms) delay between commands.
+     *
+     * @param commands The list of commands to execute in order.
+     * @return `true` if every command in the list executed successfully, `false` if execution stopped due to a failed command.
+     */
     suspend fun executeCommands(commands: List<Command>): Boolean {
         for (command in commands) {
             if (!executeCommand(command)) {
@@ -52,6 +72,13 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         return true
     }
     
+    /**
+     * Performs a short tap gesture at the specified screen coordinates.
+     *
+     * @param x The x coordinate on the screen in pixels.
+     * @param y The y coordinate on the screen in pixels.
+     * @return `true` if the gesture was dispatched successfully, `false` otherwise.
+     */
     @RequiresApi(Build.VERSION_CODES.N)
     private suspend fun executeTap(x: Float, y: Float): Boolean = withContext(Dispatchers.Main) {
         try {
@@ -71,6 +98,16 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         }
     }
     
+    /**
+     * Performs a swipe gesture from the given start coordinates to the end coordinates over the specified duration.
+     *
+     * @param startX The starting X coordinate in screen pixels.
+     * @param startY The starting Y coordinate in screen pixels.
+     * @param endX The ending X coordinate in screen pixels.
+     * @param endY The ending Y coordinate in screen pixels.
+     * @param duration The gesture duration in milliseconds.
+     * @return `true` if the gesture was dispatched successfully, `false` otherwise.
+     */
     @RequiresApi(Build.VERSION_CODES.N)
     private suspend fun executeSwipe(startX: Float, startY: Float, endX: Float, endY: Float, duration: Long): Boolean = withContext(Dispatchers.Main) {
         try {
@@ -91,6 +128,13 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         }
     }
     
+    /**
+     * Performs a scroll in the given direction for the specified duration, using a scrollable node when available and falling back to a gesture-based swipe if necessary.
+     *
+     * @param direction The direction to scroll (UP, DOWN, LEFT, RIGHT).
+     * @param duration The duration of the scroll in milliseconds.
+     * @return `true` if the scroll action or fallback gesture was successfully performed, `false` otherwise.
+     */
     private suspend fun executeScroll(direction: Command.ScrollDirection, duration: Long): Boolean = withContext(Dispatchers.Main) {
         try {
             val rootNode = accessibilityService.rootInActiveWindow ?: return@withContext false
@@ -132,6 +176,13 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         }
     }
     
+    /**
+     * Searches the provided node's subtree for a scrollable accessibility node.
+     *
+     * @param node The root AccessibilityNodeInfo to start the search from.
+     * @param direction The desired scroll direction to consider when locating a scrollable node (currently not used to influence the search).
+     * @return The first scrollable AccessibilityNodeInfo found in the subtree, or `null` if none is found.
+     */
     private fun findScrollableNode(node: AccessibilityNodeInfo, direction: Command.ScrollDirection): AccessibilityNodeInfo? {
         // Check if current node is scrollable
         if (node.isScrollable) {
@@ -152,6 +203,14 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         return null
     }
     
+    /**
+     * Inputs the given text into the currently focused editable accessibility node, if one exists.
+     *
+     * Attempts to find the focused editable node in the active window and set its text to `text`.
+     *
+     * @param text The text to insert into the focused editable node.
+     * @return `true` if the text was successfully set on a focused editable node, `false` otherwise.
+     */
     private suspend fun executeInputText(text: String): Boolean = withContext(Dispatchers.Main) {
         try {
             val rootNode = accessibilityService.rootInActiveWindow ?: return@withContext false
@@ -174,6 +233,12 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         }
     }
     
+    /**
+     * Finds the currently focused AccessibilityNodeInfo within the subtree rooted at the given node.
+     *
+     * @param node The root node to search for a focused descendant.
+     * @return The focused node if one exists in the subtree, `null` otherwise.
+     */
     private fun findFocusedNode(node: AccessibilityNodeInfo): AccessibilityNodeInfo? {
         if (node.isFocused) {
             return node
@@ -192,11 +257,22 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         return null
     }
     
+    /**
+     * Pauses execution for the specified duration.
+     *
+     * @param duration Duration to wait in milliseconds.
+     * @return `true` after the pause completes.
+     */
     private suspend fun executeWait(duration: Long): Boolean {
         delay(duration)
         return true
     }
     
+    /**
+     * Triggers the system Back action and waits briefly for the action to complete.
+     *
+     * @return `true` if the global back action was performed successfully, `false` otherwise.
+     */
     private suspend fun executeBack(): Boolean = withContext(Dispatchers.Main) {
         try {
             val result = accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_BACK)
@@ -208,6 +284,11 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         }
     }
     
+    /**
+     * Triggers the system Home action and waits briefly for the action to complete.
+     *
+     * @return `true` if the global Home action was dispatched successfully, `false` otherwise.
+     */
     private suspend fun executeHome(): Boolean = withContext(Dispatchers.Main) {
         try {
             val result = accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_HOME)
@@ -219,6 +300,11 @@ class CommandExecutor(private val accessibilityService: AccessibilityService) {
         }
     }
     
+    /**
+     * Opens the system recent apps (overview) using the AccessibilityService.
+     *
+     * @return `true` if the global recents action was performed, `false` otherwise.
+     */
     private suspend fun executeRecentApps(): Boolean = withContext(Dispatchers.Main) {
         try {
             val result = accessibilityService.performGlobalAction(AccessibilityService.GLOBAL_ACTION_RECENTS)
