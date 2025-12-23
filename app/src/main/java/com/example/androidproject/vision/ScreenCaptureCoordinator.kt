@@ -30,7 +30,11 @@ class ScreenCaptureCoordinator(
     private val coordinatorScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
 
     /**
-     * Initialize screen capture pipeline with user consent
+     * Initializes the screen capture pipeline by ensuring required accessibility permission and requesting screen capture consent.
+     *
+     * If accessibility permission is not granted, the function will prompt the system accessibility settings and defer continuation until the permission flow completes.
+     *
+     * @return `true` if screen capture consent was requested successfully, `false` otherwise.
      */
     suspend fun initializeScreenCapture(): Boolean = withContext(Dispatchers.Main) {
         return@withContext suspendCoroutine { continuation ->
@@ -54,7 +58,9 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Start the complete pipeline
+     * Starts the screen capture pipeline, enabling accessibility tree collection and screen-change monitoring.
+     *
+     * Sets the coordinator to active, initiates accessibility tree collection when available, begins screen capture monitoring, and starts periodic accessibility tree collection. On failure the coordinator resets to inactive.
      */
     suspend fun startPipeline() {
         if (isActive) {
@@ -83,7 +89,11 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Stop the pipeline
+     * Stops the running screen capture pipeline and releases its resources.
+     *
+     * If the pipeline is not active this function does nothing. When active, it marks the
+     * pipeline inactive, stops the screen capture manager, stops accessibility tree collection
+     * if a service is attached, and cancels the coordinator's coroutine scope.
      */
     fun stopPipeline() {
         if (!isActive) return
@@ -103,7 +113,12 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Manual capture trigger
+     * Captures a single screen frame, runs OCR on it, and aggregates the resulting screen state.
+     *
+     * Returns the aggregated ScreenStateResult when a bitmap is captured and processed; returns `null`
+     * if the pipeline is not active, no frame could be captured, or an error occurred during capture or processing.
+     *
+     * @return The aggregated screen state, or `null` if capture/processing failed or the pipeline is inactive.
      */
     suspend fun triggerManualCapture(): ScreenStateResult? {
         if (!isActive) {
@@ -125,7 +140,9 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Check if accessibility service is enabled
+     * Checks whether this app's accessibility service is listed in the system's enabled accessibility services.
+     *
+     * @return `true` if the current package name appears in `Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES`, `false` otherwise.
      */
     private fun isAccessibilityServiceEnabled(): Boolean {
         val enabledServices = android.provider.Settings.Secure.getString(
@@ -137,7 +154,7 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Request accessibility service permission
+     * Opens the system Accessibility Settings screen so the user can enable the app's accessibility service.
      */
     private fun requestAccessibilityServicePermission() {
         val intent = Intent(android.provider.Settings.ACTION_ACCESSIBILITY_SETTINGS)
@@ -146,7 +163,10 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Request screen capture consent
+     * Starts the system flow to request user consent for screen capture.
+     *
+     * The Activity is expected to handle the resulting intent result (for example via startActivityForResult
+     * or the Activity Result API).
      */
     private fun requestScreenCaptureConsent() {
         screenCaptureManager.requestScreenCaptureConsent()
@@ -154,7 +174,12 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Handle screen capture consent result from Activity
+     * Handle the result of the screen capture consent flow and start capture when consent is provided.
+     *
+     * Starts the screen capture using the provided activity result data; if `data` is null, no capture is started.
+     *
+     * @param resultCode The result code returned by the consent activity (for example, `Activity.RESULT_OK`).
+     * @param data The `Intent` containing the permission token required to start screen capture, or `null` if not provided.
      */
     fun onScreenCaptureConsentResult(resultCode: Int, data: Intent?) {
         data?.let {
@@ -165,17 +190,29 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Set accessibility service instance
+     * Attach or clear the accessibility service used by the coordinator.
+     *
+     * @param service The MyAccessibilityService instance to use, or `null` to remove the current reference.
      */
     fun setAccessibilityService(service: MyAccessibilityService?) {
         accessibilityService = service
     }
 
     /**
-     * Check if pipeline is active
-     */
+ * Reports whether the screen capture pipeline is currently active.
+ *
+ * @return `true` if the pipeline is active, `false` otherwise.
+ */
     fun isPipelineActive(): Boolean = isActive
 
+    /**
+     * Handles a screen capture result by processing successful captures or logging errors.
+     *
+     * If `result` is `Success`, schedules processing of the captured bitmap on the coordinator scope.
+     * If `result` is `Error`, logs the error message.
+     *
+     * @param result The outcome of a screen capture operation.
+     */
     private fun onScreenCaptureResult(result: ScreenCaptureResult) {
         when (result) {
             is ScreenCaptureResult.Success -> {
@@ -189,6 +226,16 @@ class ScreenCaptureCoordinator(
         }
     }
 
+    /**
+     * Processes a captured screen bitmap by extracting text, collecting the current accessibility tree,
+     * aggregating those inputs into a screen state, and dispatching the aggregated result.
+     *
+     * The function performs OCR on the provided bitmap, attempts to obtain an accessibility tree
+     * (empty if unavailable), passes the bitmap, OCR result, and accessibility tree to the
+     * ScreenStateAggregator, and then forwards the aggregation outcome to the coordinator's handler.
+     *
+     * @param bitmap The captured screen image to process.
+     */
     private suspend fun processCapturedFrame(bitmap: Bitmap) {
         try {
             // Process OCR on the captured frame
@@ -217,12 +264,22 @@ class ScreenCaptureCoordinator(
         }
     }
 
+    /**
+     * Begins monitoring the device screen for changes to enable periodic capture of frames.
+     */
     private suspend fun startScreenCapture() {
         // Screen capture will automatically trigger on screen changes
         // The ScreenCaptureManager handles the periodic captures
         Log.d(TAG, "Started screen capture monitoring")
     }
 
+    /**
+     * Begins collecting accessibility tree updates and handling each received tree.
+     *
+     * Starts a coroutine on the coordinator scope that subscribes to the accessibility service's
+     * `accessibilityTreeFlow` and logs each emitted tree's node count. If no accessibility service
+     * is set, the function does nothing.
+     */
     private fun startAccessibilityCollection() {
         coordinatorScope.launch {
             accessibilityService?.accessibilityTreeFlow?.collectLatest { tree ->
@@ -232,12 +289,26 @@ class ScreenCaptureCoordinator(
         }
     }
 
+    /**
+     * Captures a single screen frame as a Bitmap.
+     *
+     * @return A Bitmap containing the captured frame, or `null` if a capture cannot be performed
+     * (for example when MediaProjection is not configured or permission is missing).
+     */
     private suspend fun captureSingleFrame(): Bitmap? {
         // This would be implemented to capture a single frame on demand
         // For now, returning null as it requires MediaProjection setup
         return null
     }
 
+    /**
+     * Handles the completed screen state aggregation result.
+     *
+     * Processes a successful aggregation (e.g., transmit or further process the aggregated data)
+     * and records errors when aggregation fails.
+     *
+     * @param result The aggregated screen state result to handle; may be `ScreenStateResult.Success` or `ScreenStateResult.Error`.
+     */
     private fun onScreenStateAggregated(result: ScreenStateResult) {
         when (result) {
             is ScreenStateResult.Success -> {
@@ -251,7 +322,9 @@ class ScreenCaptureCoordinator(
     }
 
     /**
-     * Clean up resources
+     * Releases resources used by the coordinator and stops any running pipeline.
+     *
+     * Stops the active pipeline if running, closes the OCR processor, and cancels the coordinator's coroutine scope.
      */
     fun cleanup() {
         stopPipeline()

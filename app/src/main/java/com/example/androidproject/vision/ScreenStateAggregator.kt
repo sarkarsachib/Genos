@@ -21,7 +21,15 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Aggregate screen state combining screenshot, OCR results, and accessibility tree
+     * Aggregate screenshot, OCR results, and accessibility nodes into a single ScreenState payload.
+     *
+     * Collects a stored screenshot URI, merged OCR text and bounding boxes, processed UI elements from
+     * the accessibility tree, and accompanying metadata into a ScreenState result.
+     *
+     * @param bitmap The captured screen image to save and include in the aggregated state.
+     * @param ocrResult The OCR extraction result used to produce aggregated text and bounding boxes.
+     * @param accessibilityTree The list of accessibility nodes to convert into UI element representations.
+     * @return `ScreenStateResult.Success` containing the assembled ScreenState on success, `ScreenStateResult.Error` with a descriptive message on failure.
      */
     suspend fun aggregateScreenState(
         bitmap: Bitmap,
@@ -61,7 +69,14 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Aggregate screen state without accessibility tree (fallback)
+     * Aggregate a ScreenState using the provided screenshot and OCR results, omitting accessibility data.
+     *
+     * Saves the bitmap to storage, extracts OCR text and bounding boxes, builds a ScreenState with an empty
+     * UI elements list and generated metadata, and returns the aggregation result.
+     *
+     * @param bitmap The screenshot bitmap to save and include in the ScreenState.
+     * @param ocrResult The OCR result used to extract aggregated text and bounding boxes.
+     * @return `ScreenStateResult.Success` with the constructed ScreenState on success, `ScreenStateResult.Error` with an error message on failure.
      */
     suspend fun aggregateScreenStateSimple(
         bitmap: Bitmap,
@@ -92,7 +107,12 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Save screenshot to external storage
+     * Saves a bitmap as a timestamped JPEG file in the Pictures/ScreenCaptures directory.
+     *
+     * Creates the target directory if it does not exist and returns a Uri pointing to the saved file.
+     *
+     * @param bitmap The image to write to storage.
+     * @return A Uri referencing the saved JPEG file.
      */
     private suspend fun saveScreenshotToStorage(bitmap: Bitmap): Uri = withContext(Dispatchers.IO) {
         val timestamp = SimpleDateFormat("yyyyMMdd_HHmmss", Locale.getDefault()).format(Date())
@@ -119,7 +139,10 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Extract plain text from OCR result
+     * Concatenates recognized text from an OCR result into a single plain string.
+     *
+     * @param ocrResult The OCR result containing text blocks or an error.
+     * @return The concatenated text from all blocks and lines when OCR succeeded, or an empty string if OCR failed.
      */
     private fun extractOcrText(ocrResult: OcrResult): String {
         return when (ocrResult) {
@@ -135,7 +158,12 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Extract bounding boxes from OCR result
+     * Produce a list of TextBoundingBox objects extracted from a successful OCR result.
+     *
+     * If the OCR result represents an error, returns an empty list.
+     *
+     * @param ocrResult The OCR result to extract bounding boxes from.
+     * @return A list of `TextBoundingBox` containing text, bounding box, and confidence for each OCR element; empty if OCR failed.
      */
     private fun extractOcrBoundingBoxes(ocrResult: OcrResult): List<TextBoundingBox> {
         return when (ocrResult) {
@@ -157,7 +185,10 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Process accessibility tree into UI elements
+     * Convert an accessibility node list into a list of UiElement objects.
+     *
+     * @param tree The accessibility tree nodes to transform.
+     * @return A list of `UiElement` representing each node, including computed `viewHierarchy` for each element.
      */
     private fun processAccessibilityTree(tree: List<AccessibilityTreeNode>): List<UiElement> {
         return tree.map { node ->
@@ -178,7 +209,13 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Get view hierarchy path for an element
+     * Builds a hierarchical view path for the given accessibility node.
+     *
+     * Each ancestor's className is used when available, otherwise resourceId is used;
+     * if both are null the segment is "Unknown". Ancestor segments are joined with " > ".
+     *
+     * @param node The accessibility tree node to generate the hierarchy for.
+     * @return A string representing the node's ancestor path (root to node) joined by " > ".
      */
     private fun getViewHierarchy(node: AccessibilityTreeNode): String {
         val path = mutableListOf<String>()
@@ -194,7 +231,12 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Create metadata for the screen state
+     * Builds a ScreenMetadata object summarizing the provided bitmap, OCR result, and accessibility tree.
+     *
+     * @param bitmap Source bitmap used to record image width and height.
+     * @param ocrResult OCR processing result used to derive `ocrStatus` and `ocrTextBlocksCount`.
+     * @param accessibilityTree Accessibility nodes list used to derive `accessibilityNodeCount` and `hasAccessibilityData`.
+     * @return A ScreenMetadata containing bitmap dimensions, OCR status and text-block count, accessibility node count and presence flag, and device pixel density.
      */
     private fun createMetadata(
         bitmap: Bitmap,
@@ -219,7 +261,11 @@ class ScreenStateAggregator(private val context: Context) {
     }
 
     /**
-     * Clean up old screenshots to manage storage
+     * Deletes screenshot files older than the specified number of days from the application's
+     * "ScreenCaptures" directory in the device Pictures folder.
+     *
+     * @param maxAgeDays Number of days; files with last-modified timestamps older than this
+     * value will be removed. Defaults to 7.
      */
     suspend fun cleanupOldScreenshots(maxAgeDays: Int = 7) = withContext(Dispatchers.IO) {
         try {
