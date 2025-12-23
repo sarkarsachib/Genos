@@ -3,3 +3,6 @@
     <include domain="file" path="logs/"/>
     <exclude domain="file" path="logs/accessibility_service.log"/>
 </full-backup-content>
+    <!-- Exclude sensitive or temporary files -->
+    <exclude domain="sharedpref" path="device.xml" />
+</full-backup-content>

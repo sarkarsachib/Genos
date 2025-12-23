@@ -8,6 +8,10 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+include ':screencapture'
+pluginManagement {
+    repositories {
+        gradlePluginPortal()
         google()
         mavenCentral()
     }
@@ -15,3 +19,7 @@ dependencyResolutionManagement {
 
 rootProject.name = "GENOS Accessibility"
 include ':app'
+rootProject.name = "gemini-client"
+
+include ':ai:gemini'
+project(':ai:gemini').projectDir = file('ai/gemini')

@@ -15,6 +15,19 @@ android {
         versionName "1.0"
         
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+    id 'org.jetbrains.kotlin.android'
+}
+
+android {
+    namespace 'com.genos.accessibility'
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "com.genos.accessibility"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
     }
 
     buildTypes {
@@ -37,6 +50,18 @@ android {
         unitTests {
             includeAndroidResources = true
         }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+
+    kotlinOptions {
+        jvmTarget = '11'
+    }
+
+    buildFeatures {
+        viewBinding true
     }
 }
 
@@ -69,4 +94,12 @@ dependencies {
     
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.7.0'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0'
+    implementation 'androidx.activity:activity-ktx:1.8.2'
+    implementation 'androidx.fragment:fragment-ktx:1.6.2'
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3'
+    implementation 'org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.2'
 }
