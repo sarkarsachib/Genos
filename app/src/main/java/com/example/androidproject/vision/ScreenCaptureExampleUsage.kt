@@ -19,7 +19,10 @@ class ScreenCaptureExampleUsage(private val context: Context) {
     private var isUsingTesseract = false
 
     /**
-     * Example 1: Basic ML Kit OCR Pipeline
+     * Demonstrates a complete ML Kit OCR flow from screen capture through aggregation and result handling.
+     *
+     * Captures a bitmap, runs ML Kit OCR on the capture, aggregates OCR output into a ScreenState, and passes
+     * the aggregated result to the common handler; ensures OCR processor resources are closed.
      */
     fun exampleMlKitOcrPipeline() {
         scope.launch {
@@ -57,7 +60,11 @@ class ScreenCaptureExampleUsage(private val context: Context) {
     }
 
     /**
-     * Example 2: Tesseract OCR Pipeline
+     * Runs a Tesseract-based OCR pipeline against a captured screen image, aggregates the results, and handles output.
+     *
+     * Initializes and configures a Tesseract OCR processor, captures a bitmap, performs OCR, converts successful
+     * results to the standard OCR format, aggregates them into a screen state, and passes the aggregated result to
+     * the handler. Logs initialization or processing failures and ensures the Tesseract processor is closed on completion.
      */
     fun exampleTesseractOcrPipeline() {
         scope.launch {
@@ -113,7 +120,11 @@ class ScreenCaptureExampleUsage(private val context: Context) {
     }
 
     /**
-     * Example 3: Regional OCR Processing
+     * Performs OCR on predefined regions of the simulated screen and logs detected text blocks.
+     *
+     * Chooses the OCR engine (Tesseract or ML Kit) based on the internal flag, captures a screen bitmap,
+     * runs region-based OCR over the status bar and navigation regions, logs each text block's text and
+     * bounding box when successful, and logs errors when OCR or processing fails.
      */
     fun exampleRegionalOcrProcessing() {
         scope.launch {
@@ -166,7 +177,11 @@ class ScreenCaptureExampleUsage(private val context: Context) {
     }
 
     /**
-     * Example 4: Complete Pipeline with Accessibility Integration
+     * Runs a complete screen-capture OCR pipeline that integrates accessibility data and produces a transmission payload.
+     *
+     * Captures a bitmap, performs OCR, aggregates the OCR result with a simulated accessibility tree into a ScreenState,
+     * logs summary information (screenshot URI, OCR text, UI element count, metadata), and constructs a transmission payload.
+     * Resources used by the OCR processor are closed and failures are logged.
      */
     fun exampleCompletePipelineWithAccessibility() {
         scope.launch {
@@ -220,8 +235,14 @@ class ScreenCaptureExampleUsage(private val context: Context) {
     }
 
     /**
-     * Example 5: Performance Comparison between OCR engines
-     */
+     * Compares ML Kit and Tesseract OCR by measuring processing time and basic result metrics on a captured screen image.
+     *
+     * Runs both OCR engines against a simulated screen capture, records for each engine:
+     * - `time_ms`: elapsed milliseconds for initialization + processing (where applicable),
+     * - `success`: whether OCR produced a successful result,
+     * - `text_blocks`: number of detected text blocks (0 on error).
+     *
+     * Results are logged; Tesseract initialization failure is recorded as an error entry. The function manages OCR processor lifecycle. */
     fun exampleOcrPerformanceComparison() {
         scope.launch {
             try {
@@ -284,6 +305,14 @@ class ScreenCaptureExampleUsage(private val context: Context) {
         }
     }
 
+    /**
+     * Handle and log the outcome of a screen state aggregation.
+     *
+     * On success, logs the screenshot URI, OCR text length, number of OCR bounding boxes,
+     * and number of detected UI elements. On error, logs the aggregation error message.
+     *
+     * @param result The aggregation result to handle and log.
+     */
     private fun handleAggregatedResult(result: ScreenStateResult) {
         when (result) {
             is ScreenStateResult.Success -> {
@@ -300,6 +329,12 @@ class ScreenCaptureExampleUsage(private val context: Context) {
         }
     }
 
+    /**
+     * Convert a Tesseract-specific OCR result into the unified `OcrResult` representation.
+     *
+     * @param result The `TesseractOcrResult` to convert.
+     * @return An `OcrResult.Success` containing the extracted text blocks when conversion succeeds, or an `OcrResult.Error` containing the error message when conversion fails.
+     */
     private fun convertTesseractResult(result: TesseractOcrResult): OcrResult {
         return when (result) {
             is TesseractOcrResult.Success -> OcrResult.Success(result.textBlocks)
@@ -307,6 +342,16 @@ class ScreenCaptureExampleUsage(private val context: Context) {
         }
     }
 
+    /**
+     * Builds a JSON-formatted payload representing a captured screen state.
+     *
+     * The payload includes the capture timestamp, screenshot URI, full OCR text, a list of OCR
+     * bounding boxes (with text, coordinates, size, and confidence), and a list of UI elements
+     * (with class name, text, and view hierarchy). The resulting JSON is returned as a UTF-8
+     * encoded byte array.
+     *
+     * @param screenState The screen state to serialize into the transmission payload.
+     * @return A UTF-8 encoded byte array containing the JSON payload.
     private fun createTransmissionPayload(screenState: ScreenState): ByteArray {
         // Create JSON or binary payload for transmission to Gemini
         val payload = buildString {
@@ -342,11 +387,21 @@ class ScreenCaptureExampleUsage(private val context: Context) {
         return payload.toByteArray()
     }
 
+    /**
+     * Produces a simulated full-screen bitmap for testing and demonstration.
+     *
+     * @return A 1080x1920 ARGB_8888 bitmap representing a fake screen capture.
     private fun simulateScreenCapture(): Bitmap {
         // Simulate a captured screen bitmap
         return Bitmap.createBitmap(1080, 1920, Bitmap.Config.ARGB_8888)
     }
 
+    /**
+     * Creates a simulated accessibility tree used for examples and testing.
+     *
+     * @return A list containing a single AccessibilityTreeNode representing a clickable "Submit" button
+     * with predefined bounds, content description, resource id, and package name.
+     */
     private fun simulateAccessibilityTree(): List<com.example.androidproject.accessibility.AccessibilityTreeNode> {
         // Simulate accessibility tree nodes
         return listOf(
@@ -365,6 +420,9 @@ class ScreenCaptureExampleUsage(private val context: Context) {
         )
     }
 
+    /**
+     * Cancels the internal CoroutineScope, stopping any running coroutines and releasing its job.
+     */
     fun cleanup() {
         scope.cancel()
     }

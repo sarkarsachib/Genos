@@ -44,7 +44,12 @@ class ScreenCaptureManager(
     val results: Flow<ScreenCaptureResult> = _results.receiveAsFlow()
 
     /**
-     * Request user consent for screen recording
+     * Creates a screen-capture intent via the system MediaProjectionManager for requesting user consent.
+     *
+     * This method prepares the Intent that must be launched from an Activity (e.g., via
+     * startActivityForResult or an ActivityResultLauncher) to prompt the user to allow screen capture.
+     * The intent is not started by this method; callers are responsible for launching it and handling
+     * the activity result.
      */
     fun requestScreenCaptureConsent() {
         val captureIntent = mediaProjectionManager.createScreenCaptureIntent()
@@ -53,7 +58,13 @@ class ScreenCaptureManager(
     }
 
     /**
-     * Start screen capture after consent is granted
+     * Begins capturing the device screen using the provided Activity result data.
+     *
+     * Initializes a MediaProjection from the given result and sets up capture resources and a background
+     * capture loop. On failure, posts an `ScreenCaptureResult.Error` to the manager's state callback.
+     *
+     * @param resultCode The result code returned by the screen capture consent Activity.
+     * @param data The Intent data returned by the screen capture consent Activity.
      */
     fun startCapture(resultCode: Int, data: Intent) {
         if (isCapturing) {
@@ -74,7 +85,12 @@ class ScreenCaptureManager(
     }
 
     /**
-     * Stop screen capture
+     * Stops active screen capture and releases all associated resources.
+     *
+     * Sets the capturing flag to false, cancels pending capture callbacks, stops the capture thread,
+     * releases the virtual display and media projection, closes the image reader, and clears internal
+     * references. Any exceptions thrown during teardown are caught and ignored to ensure cleanup
+     * completes.
      */
     fun stopCapture() {
         isCapturing = false
@@ -100,10 +116,21 @@ class ScreenCaptureManager(
     }
 
     /**
-     * Check if currently capturing
-     */
+ * Indicates whether screen capture is currently active.
+ *
+ * @return `true` if capture is active, `false` otherwise.
+ */
     fun isCapturing(): Boolean = isCapturing
 
+    /**
+     * Initializes capture resources for screen recording: creates an ImageReader sized to the
+     * current display, registers its image-available listener to process incoming frames, and
+     * creates a VirtualDisplay that streams the screen into the ImageReader's surface.
+     *
+     * This configures `imageReader` and `virtualDisplay` and runs the image listener on
+     * `captureHandler`. The listener acquires the latest image and delegates processing to
+     * `processCapturedImage`.
+     */
     private fun setupCapture() {
         val windowManager = context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         val metrics = DisplayMetrics()
@@ -140,6 +167,10 @@ class ScreenCaptureManager(
         )
     }
 
+    /**
+     * Starts a background HandlerThread named "ScreenCaptureThread" and creates a Handler
+     * associated with its looper for processing screen capture events.
+     */
     private fun startCaptureLoop() {
         captureThread = HandlerThread("ScreenCaptureThread").apply {
             start()
@@ -147,6 +178,15 @@ class ScreenCaptureManager(
         }
     }
 
+    /**
+     * Converts a captured Image into a Bitmap, crops any row padding, and publishes the result.
+     *
+     * On success sends a ScreenCaptureResult.Success containing the cropped bitmap to the internal results
+     * channel and invokes the onScreenStateChanged callback. On failure sends a ScreenCaptureResult.Error
+     * with a message and logs the exception.
+     *
+     * @param image The captured Android Image provided by the ImageReader listener.
+     */
     private fun processCapturedImage(image: Image) {
         try {
             val planes = image.planes
@@ -187,7 +227,10 @@ class ScreenCaptureManager(
     }
 
     /**
-     * Convert bitmap to byte array for transmission
+     * Encode a bitmap as a JPEG byte array using 80% quality.
+     *
+     * @param bitmap The bitmap to encode.
+     * @return A byte array containing the JPEG-compressed image data at 80% quality.
      */
     fun bitmapToByteArray(bitmap: Bitmap): ByteArray {
         val outputStream = ByteArrayOutputStream()

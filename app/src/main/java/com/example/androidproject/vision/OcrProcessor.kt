@@ -26,7 +26,10 @@ class OcrProcessor {
     )
 
     /**
-     * Process bitmap and extract text with bounding boxes
+     * Performs OCR on the provided bitmap and returns structured text blocks or an error.
+     *
+     * @param bitmap The source image to analyze for text.
+     * @return `OcrResult.Success` containing a list of detected `TextBlock` when text is found, `OcrResult.Error` with a message otherwise.
      */
     suspend fun processImage(bitmap: Bitmap): OcrResult {
         return try {
@@ -44,7 +47,14 @@ class OcrProcessor {
     }
 
     /**
-     * Process bitmap with custom bounding box regions for focused OCR
+     * Perform OCR on specified rectangular regions of a bitmap and aggregate detected text blocks.
+     *
+     * Bounding boxes from each region are translated back into the original bitmap's coordinate space.
+     *
+     * @param bitmap The source bitmap to scan.
+     * @param regions List of rectangular regions (in bitmap coordinates) to run OCR on.
+     * @return `OcrResult.Success` containing aggregated text blocks with bounding boxes adjusted to the original bitmap coordinates,
+     *         or `OcrResult.Error` with an explanatory message if no text is found or processing fails.
      */
     suspend fun processImageWithRegion(bitmap: Bitmap, regions: List<Rect>): OcrResult {
         return try {
@@ -96,7 +106,15 @@ class OcrProcessor {
     }
 
     /**
-     * Extract text blocks with bounding boxes from ML Kit result
+     * Convert an ML Kit `Text` result into a structured list of text blocks with bounding boxes.
+     *
+     * The returned structure preserves block → line → element hierarchy and each item includes its
+     * bounding box. Element `confidence` values are set to 0.0f because ML Kit's Latin text recognizer
+     * does not provide confidence scores.
+     *
+     * @param textResult The ML Kit `Text` result to convert.
+     * @return `OcrResult.Success` containing a list of `TextBlock` when at least one block is found,
+     *         `OcrResult.Error` with a message otherwise.
      */
     private fun extractTextBlocks(textResult: Text): OcrResult {
         val textBlocks = mutableListOf<TextBlock>()
@@ -164,7 +182,11 @@ class OcrProcessor {
     }
 
     /**
-     * Helper function to await ML Kit result in a coroutine
+     * Suspend until the provided ML Kit Task completes.
+     *
+     * @param task The ML Kit Task to await.
+     * @return The completed task's result.
+     * @throws Exception The exception produced if the Task fails.
      */
     private suspend fun <T> awaitTaskResult(task: Task<T>): T {
         return suspendCancellableCoroutine { continuation ->
@@ -178,6 +200,12 @@ class OcrProcessor {
         }
     }
 
+    /**
+     * Obtain the ML Kit `Text` result from the given `Task`.
+     *
+     * @param task ML Kit `Task` that produces a `Text` result.
+     * @return The completed task's `Text` result.
+     */
     private suspend fun awaitTextResult(task: Task<Text>): Text {
         return awaitTaskResult(task)
     }

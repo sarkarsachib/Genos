@@ -26,7 +26,12 @@ class TesseractOcrProcessor(private val context: Context) {
     private var isInitialized = false
 
     /**
-     * Initialize Tesseract OCR engine
+     * Prepare and initialize the Tesseract OCR engine, ensuring tessdata files are present.
+     *
+     * This will create the app's tessdata directory and copy bundled tessdata from assets if missing,
+     * instantiate and configure the TessBaseAPI, and update the processor's initialization state.
+     *
+     * @return `true` if initialization succeeded and the engine is ready, `false` otherwise.
      */
     suspend fun initialize(): Boolean = withContext(Dispatchers.IO) {
         return@withContext try {
@@ -55,7 +60,10 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Process bitmap and extract text with Tesseract
+     * Perform OCR on the provided bitmap using the initialized Tesseract engine and return recognized text and layout.
+     *
+     * @param bitmap The image to analyze for text.
+     * @return `TesseractOcrResult.Success` containing the trimmed recognized text, the mean confidence value, and the list of detected text blocks when text is found; `TesseractOcrResult.Error` with a descriptive message otherwise (for example, when Tesseract is not initialized or processing fails).
      */
     suspend fun processImage(bitmap: Bitmap): TesseractOcrResult = withContext(Dispatchers.IO) {
         if (!isInitialized || tessApi == null) {
@@ -94,7 +102,18 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Process bitmap with custom ROI (Region of Interest)
+     * Performs OCR on specific rectangular regions of the provided bitmap and aggregates the results.
+     *
+     * Processes each region in bitmap coordinates, runs OCR on the cropped area, and accumulates recognized
+     * text, adjusted text blocks (bounding boxes translated to the original bitmap coordinate space),
+     * and an average confidence across regions that produced text.
+     *
+     * @param bitmap The source image containing the regions to process.
+     * @param regions List of rectangular regions in the bitmap's coordinate space to run OCR on.
+     * @return `TesseractOcrResult.Success` containing the concatenated text, the average confidence across
+     *         regions that yielded text, and the list of text blocks with bounding boxes adjusted to the
+     *         original bitmap coordinates; `TesseractOcrResult.Error` with a message if processing failed
+     *         or no text was detected in the specified regions.
      */
     suspend fun processImageWithRegion(bitmap: Bitmap, regions: List<android.graphics.Rect>): TesseractOcrResult {
         if (!isInitialized || tessApi == null) {
@@ -169,7 +188,13 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Extract text blocks with bounding boxes from Tesseract result
+     * Builds a list of text blocks with bounding boxes and confidence scores from the current Tesseract result.
+     *
+     * Each returned TextBlock represents one or more words grouped into an approximate single-line block; each block contains
+     * one TextLine (the assembled line) which contains TextElement entries for individual words. Confidence values on
+     * TextElement are normalized to the 0.0–1.0 range.
+     *
+     * @return A list of extracted TextBlock objects; returns an empty list if no blocks are found or if extraction fails.
      */
     private fun extractTextBlocks(): List<TextBlock> {
         val blocks = mutableListOf<TextBlock>()
@@ -245,7 +270,11 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Check if two rectangles are in the same text line (simplified)
+     * Determines whether two rectangles belong to the same text line based on vertical overlap.
+     *
+     * @param rect1 First rectangle in image coordinates.
+     * @param rect2 Second rectangle in image coordinates.
+     * @return `true` if the vertical overlap between the rectangles is greater than 50% of the smaller rectangle's height, `false` otherwise.
      */
     private fun isInSameLine(rect1: android.graphics.Rect, rect2: android.graphics.Rect): Boolean {
         val verticalOverlap = Math.min(rect1.bottom, rect2.bottom) - Math.max(rect1.top, rect2.top)
@@ -254,7 +283,11 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Merge two rectangles into a larger one
+     * Creates the minimal bounding rectangle that contains both input rectangles.
+     *
+     * @param rect1 First rectangle to merge.
+     * @param rect2 Second rectangle to merge.
+     * @return A new `Rect` that minimally bounds `rect1` and `rect2`.
      */
     private fun mergeRectangles(rect1: android.graphics.Rect, rect2: android.graphics.Rect): android.graphics.Rect {
         return android.graphics.Rect(
@@ -266,7 +299,13 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Copy Tesseract data files from assets
+     * Copies required Tesseract `tessdata` files from the app assets into the provided destination directory.
+     *
+     * Creates a `tessdata` subdirectory under [destDir] if it does not exist and copies all files found in the
+     * `assets/tesseract` folder into that location.
+     *
+     * @param destDir The base destination directory under which a `tessdata` folder will be created and populated.
+     * @throws Exception If any IO or asset access error occurs during copying; the exception is propagated to the caller.
      */
     private suspend fun copyTessDataFromAssets(destDir: File) = withContext(Dispatchers.IO) {
         try {
@@ -288,7 +327,10 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Copy individual asset file
+     * Copies a file from the app's assets to the given destination file.
+     *
+     * @param assetPath Path to the asset inside the app's assets directory.
+     * @param destFile Destination file on the filesystem to write the asset contents to.
      */
     private suspend fun copyAssetFile(assetPath: String, destFile: File) = withContext(Dispatchers.IO) {
         context.assets.open(assetPath).use { inputStream ->
@@ -299,7 +341,10 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Copy stream data
+     * Copies all bytes from the given input stream to the provided output stream and flushes the output.
+     *
+     * @param input Source input stream to read bytes from.
+     * @param output Destination output stream to write bytes to; will be flushed after copying.
      */
     private suspend fun copyStream(input: InputStream, output: FileOutputStream) = withContext(Dispatchers.IO) {
         val buffer = ByteArray(8 * 1024)
@@ -311,7 +356,11 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Set Tesseract parameters for better recognition
+     * Configure Tesseract's page segmentation mode and optional character whitelist/blacklist.
+     *
+     * @param pageSegMode Page segmentation mode constant (use values from `TessBaseAPI.PageSegMode`) that controls how Tesseract analyzes the image layout.
+     * @param charWhitelist Characters that Tesseract should allow during recognition; pass `null` to leave the whitelist unchanged.
+     * @param charBlacklist Characters that Tesseract should disallow during recognition; pass `null` to leave the blacklist unchanged.
      */
     fun setParameters(
         pageSegMode: Int = TessBaseAPI.PageSegMode.PSM_AUTO,
@@ -330,7 +379,9 @@ class TesseractOcrProcessor(private val context: Context) {
     }
 
     /**
-     * Close and release Tesseract resources
+     * Releases Tesseract resources and marks the processor as uninitialized.
+     *
+     * Safe to call multiple times; subsequent calls have no effect if already closed.
      */
     fun close() {
         try {

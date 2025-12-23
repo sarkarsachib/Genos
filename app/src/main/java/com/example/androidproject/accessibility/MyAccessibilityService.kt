@@ -20,6 +20,11 @@ class MyAccessibilityService : AccessibilityService() {
     
     private var isCollectingTree = false
 
+    /**
+     * Handles incoming accessibility events and triggers accessibility-tree collection for window changes when collection is active.
+     *
+     * @param event The incoming AccessibilityEvent (may be null); if it represents a window content or state change and tree collection is enabled, the service will collect the current accessibility tree.
+     */
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {
         if (event?.eventType == AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED || 
             event?.eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED) {
@@ -30,12 +35,20 @@ class MyAccessibilityService : AccessibilityService() {
         }
     }
 
+    /**
+     * Called when the accessibility service is interrupted.
+     *
+     * Logs that the service was interrupted.
+     */
     override fun onInterrupt() {
         Log.d(TAG, "Accessibility service interrupted")
     }
     
     /**
-     * Start collecting accessibility tree data
+     * Enables collection of the accessibility tree and triggers an immediate collection.
+     *
+     * Sets the internal flag that allows the service to collect the accessibility tree; after calling
+     * this, relevant accessibility events will cause additional collections.
      */
     fun startTreeCollection() {
         isCollectingTree = true
@@ -44,7 +57,7 @@ class MyAccessibilityService : AccessibilityService() {
     }
     
     /**
-     * Stop collecting accessibility tree data
+     * Stops collecting accessibility tree updates.
      */
     fun stopTreeCollection() {
         isCollectingTree = false
@@ -52,7 +65,9 @@ class MyAccessibilityService : AccessibilityService() {
     }
     
     /**
-     * Collect current accessibility tree
+     * Collects the current accessibility node hierarchy and publishes it to the service's internal accessibility tree channel.
+     *
+     * Retrieves the active window root node, converts it into a list of AccessibilityTreeNode instances, and attempts to send that list to the channel; failures are caught and logged.
      */
     private fun collectAccessibilityTree() {
         try {
@@ -88,7 +103,13 @@ data class AccessibilityTreeNode(
     
     companion object {
         /**
-         * Create accessibility tree from AccessibilityNodeInfo
+         * Builds a flat list of AccessibilityTreeNode objects representing the provided AccessibilityNodeInfo
+         * and its descendants.
+         *
+         * @param nodeInfo The root AccessibilityNodeInfo to convert into AccessibilityTreeNode(s).
+         * @param parent Optional parent AccessibilityTreeNode to assign as the created node's parent.
+         * @return A list containing the AccessibilityTreeNode for `nodeInfo` followed by AccessibilityTreeNode
+         * entries for all descendant nodes; each node's `parent` property references its immediate parent.
          */
         fun fromNodeInfo(nodeInfo: AccessibilityNodeInfo, parent: AccessibilityTreeNode? = null): List<AccessibilityTreeNode> {
             val nodes = mutableListOf<AccessibilityTreeNode>()
