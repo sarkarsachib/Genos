@@ -50,6 +50,12 @@
     <string name="service_running">Genos service is running</string>
     <string name="service_stopped">Genos service stopped</string>
     <string name="app_name">Android Project</string>
-    <string name="accessibility_service_label">My Accessibility Service</string>
-    <string name="accessibility_service_description">Service for accessibility features.</string>
+    <string name="accessibility_service_label">Screen Capture OCR Service</string>
+    <string name="accessibility_service_description">Service for screen capture and OCR processing to enable intelligent UI interactions.</string>
+    <string name="screen_capture_consent_title">Screen Capture Permission</string>
+    <string name="screen_capture_consent_message">This app requires screen capture permission to perform OCR on screen content. The captured data is processed locally and may be sent to AI services for enhanced functionality.</string>
+    <string name="start_capture">Start Capture</string>
+    <string name="stop_capture">Stop Capture</string>
+    <string name="grant_permission">Grant Permission</string>
+    <string name="accessibility_permission_required">Accessibility permission is required for this feature.</string>
 </resources>

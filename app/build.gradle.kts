@@ -103,6 +103,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.12.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.activity:activity-compose:1.8.2")
+    implementation("androidx.fragment:fragment-ktx:1.6.2")
     implementation(platform("androidx.compose:compose-bom:2023.08.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
@@ -148,8 +149,19 @@ dependencies {
     // Coroutines
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
     
-    // ML Kit
+    // ML Kit Text Recognition
     implementation("com.google.android.gms:play-services-mlkit-text-recognition:19.0.0")
+    implementation("com.google.mlkit:vision-common:17.0.3")
+    implementation("com.google.mlkit:text-recognition:16.0.0")
+    
+    // Tesseract OCR (tess-two)
+    implementation("com.rmtheis:tess-two:9.1.0")
+    
+    // ML Kit barcode scanning (for potential future features)
+    implementation("com.google.mlkit:barcode-scanning:17.2.0")
+    
+    // Google Play Services ML Kit
+    implementation("com.google.android.gms:play-services-mlkit-vision:16.3.0")
     
     // Accompanist
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.32.0")

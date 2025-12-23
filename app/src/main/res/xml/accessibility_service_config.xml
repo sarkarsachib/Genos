@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowContentChanged|typeWindowStateChanged|typeAllMask"
     android:accessibilityEventTypes="typeViewClicked|typeViewFocused|typeViewScrolled|typeWindowStateChanged|typeWindowContentChanged|typeNotificationStateChanged|typeScreenStateChanged"
     android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagReportViewIds|flagRequestTouchExplorationMode"
     android:accessibilityFeedbackType="feedbackGeneric"
@@ -11,6 +12,7 @@
     android:summary="@string/accessibility_service_summary" />
     android:accessibilityEventTypes="typeAllMask"
     android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows"
     android:accessibilityFlags="flagDefault|flagRequestTouchExplorationMode|flagIncludeNotImportantViews"
     android:canPerformGestures="true"
     android:accessibilityFlags="flagDefault|flagRequestTouchExplorationMode|flagRetrieveInteractiveWindows"
@@ -24,4 +26,6 @@
     android:canRetrieveWindowContent="true"
     android:canTakeScreenshot="true"
     android:description="@string/accessibility_service_description"
-    android:notificationTimeout="100" />
+    android:notificationTimeout="100"
+    android:settingsActivity=""
+    android:canPerformGestures="true" />
