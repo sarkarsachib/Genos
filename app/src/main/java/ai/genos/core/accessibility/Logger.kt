@@ -24,7 +24,15 @@ object Logger {
     private var isFileLoggingEnabled = false
     
     /**
-     * Initialize file logging
+     * Initializes on-device file logging for the accessibility service.
+     *
+     * Creates a "logs" directory under the application's files directory (if missing), prepares the current
+     * log file, rotates existing log files to maintain history, enables file logging, and records an info
+     * entry that file logging was initialized.
+     *
+     * If initialization fails, file logging is disabled and a warning is logged to Android Logcat.
+     *
+     * @param context Application context used to locate the files directory.
      */
     fun initializeFileLogging(context: android.content.Context) {
         try {
@@ -50,7 +58,11 @@ object Logger {
     }
     
     /**
-     * Log info level message
+     * Logs an informational message to Android logcat and, when file logging is enabled, to the rotated log file.
+     *
+     * @param tag Log tag; `GENOS_` is prefixed to this value for the Android log entry.
+     * @param message The message to log.
+     * @param throwable Optional throwable whose stack trace will be included in both logcat and file logs when provided.
      */
     fun logInfo(tag: String, message: String, throwable: Throwable? = null) {
         val fullTag = TAG_PREFIX + tag
@@ -62,7 +74,11 @@ object Logger {
     }
     
     /**
-     * Log debug level message
+     * Logs a debug-level message to Android logcat and, when file logging is enabled, to the rotated log file.
+     *
+     * @param tag The log tag (the `GENOS_` prefix is added automatically).
+     * @param message The message to log.
+     * @param throwable Optional throwable whose stack trace will be included with the entry.
      */
     fun logDebug(tag: String, message: String, throwable: Throwable? = null) {
         if (BuildConfig.DEBUG) {
@@ -76,7 +92,11 @@ object Logger {
     }
     
     /**
-     * Log warning level message
+     * Logs a warning message to Android logcat and, if file logging is enabled, to the rotated log file.
+     *
+     * @param tag The log tag; a fixed prefix is added before this value for Android log entries.
+     * @param message The text message to log.
+     * @param throwable Optional throwable whose stack trace will be appended to both logcat and the file entry when present.
      */
     fun logWarning(tag: String, message: String, throwable: Throwable? = null) {
         val fullTag = TAG_PREFIX + tag
@@ -88,7 +108,13 @@ object Logger {
     }
     
     /**
-     * Log error level message
+     * Logs an error message to Android Logcat and, if file logging is enabled, to the rotated log file.
+     *
+     * If a `throwable` is provided, its stack trace is included in both outputs.
+     *
+     * @param tag Short identifier for the log source (will be prefixed internally).
+     * @param message The error message to record.
+     * @param throwable Optional throwable whose stack trace will be logged. 
      */
     fun logError(tag: String, message: String, throwable: Throwable? = null) {
         val fullTag = TAG_PREFIX + tag
@@ -100,7 +126,9 @@ object Logger {
     }
     
     /**
-     * Log verbose level message
+     * Logs a verbose-level entry to Logcat when running a debug build and, if file logging is enabled, appends a VERBOSE entry to the current log file.
+     *
+     * @param throwable Optional throwable whose stack trace will be included with the log entry.
      */
     fun logVerbose(tag: String, message: String, throwable: Throwable? = null) {
         if (BuildConfig.DEBUG) {
@@ -114,7 +142,18 @@ object Logger {
     }
     
     /**
-     * Write log message to file
+     * Appends a timestamped, prefixed log entry to the configured log file and rotates files if the current
+     * file exceeds the maximum size.
+     *
+     * The written line uses the file log prefix and includes the provided level, tag, and message.
+     * If `throwable` is provided, its stack trace is appended on the following line.
+     *
+     * IO errors are suppressed to avoid cascading failures; a warning is emitted via Android Log when writing fails.
+     *
+     * @param level The log level label (e.g., "INFO", "DEBUG", "ERROR").
+     * @param tag Short source identifier to include in the entry.
+     * @param message The log message to record.
+     * @param throwable Optional throwable whose stack trace will be appended to the entry when present.
      */
     private fun writeToFile(level: String, tag: String, message: String, throwable: Throwable?) {
         try {
@@ -144,7 +183,12 @@ object Logger {
     }
     
     /**
-     * Rotate log files to maintain history
+     * Rotate on-disk accessibility service log files to maintain a capped history.
+     *
+     * Renames files named accessibility_service.log, accessibility_service.1.log, ..., shifting each
+     * file up by one index and deleting the oldest file when the count exceeds MAX_LOG_FILES.
+     *
+     * @param logDir Directory containing the accessibility service log files.
      */
     private fun rotateLogFiles(logDir: File) {
         try {
@@ -166,7 +210,9 @@ object Logger {
     }
     
     /**
-     * Get log file contents
+     * Reads and returns the contents of the current log file.
+     *
+     * @return The file contents as a `String`, or `null` if no log file is available or it cannot be read.
      */
     fun getLogContents(): String? {
         return try {
@@ -183,7 +229,9 @@ object Logger {
     }
     
     /**
-     * Clear log files
+     * Deletes the current log file used by the Logger, if present.
+     *
+     * Any exception thrown while attempting to delete the file is caught and suppressed.
      */
     fun clearLogs() {
         try {

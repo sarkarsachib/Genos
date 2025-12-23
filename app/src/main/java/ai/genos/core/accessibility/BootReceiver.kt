@@ -14,6 +14,13 @@ class BootReceiver : BroadcastReceiver() {
         private const val TAG = "BootReceiver"
     }
     
+    /**
+     * Handles system broadcast intents and, on boot or package replacement, starts the GenosForegroundService.
+     *
+     * When the received intent action is ACTION_BOOT_COMPLETED, ACTION_MY_PACKAGE_REPLACED, or ACTION_PACKAGE_REPLACED,
+     * attempts to start GenosForegroundService as a foreground service. Logs successful startups and logs errors if
+     * starting the service fails.
+     */
     override fun onReceive(context: Context, intent: Intent) {
         val action = intent.action
         
