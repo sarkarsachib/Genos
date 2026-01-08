@@ -1,0 +1,51 @@
+ai/gemini/
+├── build.gradle                                      # Gradle build configuration
+├── IMPLEMENTATION_COMPLETE.md                        # Implementation status document
+├── STRUCTURE.txt                                     # This file
+└── src/
+    ├── main/
+    │   └── kotlin/
+    │       └── com/example/ai/gemini/
+    │           ├── api/
+    │           │   ├── GeminiApiService.kt          # Retrofit service interface
+    │           │   └── GeminiClient.kt              # HTTP client with interceptors
+    │           ├── config/
+    │           │   └── GeminiConfig.kt              # Configuration management
+    │           ├── di/
+    │           │   └── GeminiModule.kt              # Dependency injection
+    │           ├── models/
+    │           │   ├── RequestModels.kt             # Request data models
+    │           │   └── ResponseModels.kt            # Response data models
+    │           ├── repository/
+    │           │   └── GeminiRepository.kt          # Business logic layer
+    │           ├── sample/
+    │           │   └── SampleUsage.kt               # Usage examples
+    │           └── serialization/
+    │               └── SerializationHelpers.kt      # Compression utilities
+    └── test/
+        └── kotlin/
+            └── com/example/ai/gemini/
+                ├── api/
+                │   ├── GeminiClientEdgeCasesTest.kt # Client edge case tests (9 tests)
+                │   └── GeminiClientTest.kt          # Client unit tests (9 tests)
+                ├── config/
+                │   └── GeminiConfigTest.kt          # Config tests (15 tests)
+                ├── integration/
+                │   └── GeminiIntegrationTest.kt     # Integration tests (10 tests)
+                ├── models/
+                │   └── ModelsTest.kt                # Model tests (13 tests)
+                ├── repository/
+                │   ├── GeminiRepositoryEdgeCasesTest.kt  # Repository edge cases (10 tests)
+                │   └── GeminiRepositoryTest.kt      # Repository tests (13 tests)
+                ├── serialization/
+                │   └── SerializationHelpersTest.kt  # Serialization tests (15 tests)
+                ├── test/
+                │   └── TestUtils.kt                 # Test utilities
+                └── README_TESTS.md                  # Test documentation
+
+Root Level Documentation:
+├── TEST_SUMMARY.md                                   # Comprehensive test summary
+└── UNIT_TESTS_GENERATED.md                          # Final report
+
+TOTAL: 9 production files, 9 test files, 4 documentation files = 22 files
+TESTS: 94+ test methods across 8 test classes
