@@ -45,6 +45,14 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
     private val _isOverlayVisible = MutableStateFlow(true)
     val isOverlayVisible: StateFlow<Boolean> = _isOverlayVisible.asStateFlow()
 
+    /**
+     * Initializes the service: restores saved state, prepares lifecycle and ViewModel hosts,
+     * creates and configures the overlay and full-screen gesture windows, and adds them to the WindowManager.
+     *
+     * After this method completes the service lifecycle is moved to STARTED and two views are attached:
+     * a Compose-based overlay view (bound to this service's lifecycle, ViewModelStore, and SavedStateRegistry)
+     * and a full-screen gesture overlay for touch visualization.
+     */
     override fun onCreate() {
         super.onCreate()
         savedStateRegistryController.performRestore(null)
@@ -115,6 +123,22 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         lifecycleRegistry.currentState = Lifecycle.State.STARTED
     }
 
+    /**
+     * Handle start requests and dispatch overlay-related actions contained in the incoming intent.
+     *
+     * Recognizes the following intent actions and performs the corresponding operations on the view model
+     * or internal state:
+     * - ACTION_START_MONITORING: call `viewModel.startMonitoring()`
+     * - ACTION_STOP_MONITORING: call `viewModel.stopMonitoring()`
+     * - ACTION_REQUEST_OCR: call `viewModel.requestOCR()`
+     * - ACTION_TOGGLE_VISIBILITY: toggle the overlay visibility state
+     * - ACTION_UPDATE_STATUS: read `EXTRA_STATUS` and call `viewModel.updateStatus(status)`
+     * - ACTION_UPDATE_UI_TREE: read `EXTRA_UI_TREE` and call `viewModel.updateUiTree(tree)`
+     * - ACTION_SHOW_TOUCH: read `EXTRA_X` and `EXTRA_Y` (floats) and call `viewModel.showTouchAt(x, y)`
+     *
+     * @param intent The intent whose action and extras drive overlay behavior; may be null.
+     * @return `START_STICKY` to request the system restart the service if it is terminated. 
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         lifecycleRegistry.currentState = Lifecycle.State.RESUMED
         
@@ -153,6 +177,12 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         return START_STICKY
     }
 
+    /**
+     * Stops the overlay service and cleans up its runtime resources.
+     *
+     * Sets the lifecycle to DESTROYED, removes overlay and gesture windows from the WindowManager,
+     * clears the service's ViewModelStore, and performs final Service teardown.
+     */
     override fun onDestroy() {
         lifecycleRegistry.currentState = Lifecycle.State.DESTROYED
         
@@ -167,10 +197,25 @@ class OverlayService : Service(), LifecycleOwner, ViewModelStoreOwner, SavedStat
         super.onDestroy()
     }
 
-    override fun onBind(intent: Intent?): IBinder? = null
+    /**
+ * Indicates that this service does not support binding.
+ *
+ * @return `null` since clients cannot bind to this service.
+ */
+override fun onBind(intent: Intent?): IBinder? = null
 
-    override fun getLifecycle(): Lifecycle = lifecycleRegistry
-    override fun getViewModelStore(): ViewModelStore = viewModelStore
+    /**
+ * Exposes the Lifecycle used by this service for lifecycle-aware components.
+ *
+ * @return The service's LifecycleRegistry instance.
+ */
+override fun getLifecycle(): Lifecycle = lifecycleRegistry
+    /**
+ * Exposes the ViewModelStore used to retain ViewModels for this service.
+ *
+ * @return The ViewModelStore associated with this service.
+ */
+override fun getViewModelStore(): ViewModelStore = viewModelStore
     override val savedStateRegistry: SavedStateRegistry
         get() = savedStateRegistryController.savedStateRegistry
 

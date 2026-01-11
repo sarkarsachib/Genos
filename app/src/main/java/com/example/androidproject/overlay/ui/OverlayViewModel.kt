@@ -14,18 +14,34 @@ class OverlayViewModel : ViewModel() {
     private val _state = MutableStateFlow(OverlayViewState())
     val state: StateFlow<OverlayViewState> = _state.asStateFlow()
     
+    /**
+     * Updates the displayed GENOS status text in the view state.
+     *
+     * @param status The status message to append after "GENOS: ".
+     */
     fun updateStatus(status: String) {
         viewModelScope.launch {
             _state.update { it.copy(genosStatus = "GENOS: $status") }
         }
     }
     
+    /**
+     * Updates the ViewModel state to reflect the currently foreground app shown in the overlay.
+     *
+     * @param packageName The application's package identifier (for example, `com.example.app`).
+     * @param appName The application's display name.
+     */
     fun updateAppContext(packageName: String, appName: String) {
         viewModelScope.launch {
             _state.update { it.copy(currentApp = "$appName ($packageName)") }
         }
     }
     
+    /**
+     * Starts automation monitoring and updates the overlay state to reflect that monitoring is active.
+     *
+     * Sets `isAutomationRunning` to `true` and updates `genosStatus` to "GENOS: Monitoring".
+     */
     fun startMonitoring() {
         viewModelScope.launch {
             _state.update { it.copy(
@@ -36,6 +52,11 @@ class OverlayViewModel : ViewModel() {
         }
     }
     
+    /**
+     * Stops automation monitoring and updates the overlay view state to reflect that monitoring has stopped.
+     *
+     * Sets `isAutomationRunning` to `false` and `genosStatus` to `"GENOS: Stopped"` in the view state, and logs the stop event.
+     */
     fun stopMonitoring() {
         viewModelScope.launch {
             _state.update { it.copy(
@@ -46,6 +67,15 @@ class OverlayViewModel : ViewModel() {
         }
     }
     
+    /**
+     * Displays a temporary touch visualization at the given overlay coordinates.
+     *
+     * The visualization is shown immediately and is cleared after 2 seconds.
+     *
+     * @param x The x coordinate in pixels relative to the overlay.
+     * @param y The y coordinate in pixels relative to the overlay.
+     * @param type The kind of touch to visualize (defaults to `TouchType.TAP`).
+     */
     fun showTouchAt(x: Float, y: Float, type: TouchType = TouchType.TAP) {
         viewModelScope.launch {
             _state.update { it.copy(
@@ -58,6 +88,13 @@ class OverlayViewModel : ViewModel() {
         }
     }
     
+    /**
+     * Shows the provided UI tree text in the overlay and then hides it after five seconds.
+     *
+     * Updates the view state to set `uiTree` to the given text and `showUiTree` to `true`, then clears `showUiTree` (sets to `false`) after 5 seconds.
+     *
+     * @param tree The UI tree text to display in the overlay.
+     */
     fun updateUiTree(tree: String) {
         viewModelScope.launch {
             _state.update { it.copy(
@@ -70,12 +107,23 @@ class OverlayViewModel : ViewModel() {
         }
     }
     
+    /**
+     * Toggles the `showUiTree` visibility flag in the view model's state.
+     *
+     * Flips `showUiTree` between `true` and `false` so observers of `state` see the updated visibility.
+     */
     fun toggleUiTreeVisibility() {
         viewModelScope.launch {
             _state.update { it.copy(showUiTree = !it.showUiTree) }
         }
     }
     
+    /**
+     * Signals that an OCR operation should start and updates the overlay status.
+     *
+     * Updates the ViewModel state `genosStatus` to "GENOS: Performing OCR..." and emits a debug
+     * log indicating an OCR request.
+     */
     fun requestOCR() {
         viewModelScope.launch {
             _state.update { it.copy(genosStatus = "GENOS: Performing OCR...") }
@@ -83,6 +131,11 @@ class OverlayViewModel : ViewModel() {
         }
     }
     
+    /**
+     * Updates the stored OCR result and sets the visible status to "GENOS: OCR Complete".
+     *
+     * @param text The OCR-recognized text to store in the view state.
+     */
     fun updateOcrText(text: String) {
         viewModelScope.launch {
             _state.update { it.copy(
@@ -93,6 +146,11 @@ class OverlayViewModel : ViewModel() {
         }
     }
     
+    /**
+     * Updates the overlay state to reflect that the given command is being executed and logs the command.
+     *
+     * @param command The command text to display as the last action and include in logs.
+     */
     fun executeCommand(command: String) {
         viewModelScope.launch {
             _state.update { it.copy(

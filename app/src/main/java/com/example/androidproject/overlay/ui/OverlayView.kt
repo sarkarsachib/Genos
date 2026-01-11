@@ -20,6 +20,15 @@ import androidx.compose.ui.unit.sp
 
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
+/**
+ * Renders an overlay card that displays GenOS status, control buttons, and optional sections
+ * for the last action, UI tree, and OCR results based on the provided view model's state.
+ *
+ * The composable observes `viewModel.state` and updates the visible sections and button actions
+ * in response to changes.
+ *
+ * @param viewModel Provides the UI state and action handlers used by the overlay.
+ */
 fun OverlayView(viewModel: OverlayViewModel) {
     val state by viewModel.state.collectAsState()
     
@@ -85,6 +94,16 @@ fun OverlayView(viewModel: OverlayViewModel) {
     }
 }
 
+/**
+ * Displays a two-line status header showing the GenOS status and the current app.
+ *
+ * The status line is color-coded based on the status text: `Running` → green, `Executing` → yellow,
+ * `Error` → red, otherwise the default on-surface color. The current app name is shown below with
+ * smaller styling and truncated with an ellipsis if it overflows.
+ *
+ * @param genosStatus The status text to display (used to determine the status color).
+ * @param currentApp The name of the currently focused application to display beneath the status.
+ */
 @Composable
 private fun StatusHeader(genosStatus: String, currentApp: String) {
     Column {
@@ -111,6 +130,17 @@ private fun StatusHeader(genosStatus: String, currentApp: String) {
     }
 }
 
+/**
+ * Displays a horizontal row of three evenly spaced control buttons for automation, OCR, and UI-tree toggle.
+ *
+ * The primary button toggles between "Start" and "Stop" and changes its background color based on `isAutomationRunning`.
+ *
+ * @param isAutomationRunning Whether automation is currently running; controls the primary button's label and color.
+ * @param onStartAutomation Invoked when the primary button is pressed while automation is not running.
+ * @param onStopAutomation Invoked when the primary button is pressed while automation is running.
+ * @param onRequestOcr Invoked when the "OCR" button is pressed.
+ * @param onToggleUiTree Invoked when the "Tree" button is pressed.
+ */
 @Composable
 private fun ControlButtons(
     isAutomationRunning: Boolean,
@@ -166,6 +196,10 @@ private fun ControlButtons(
     }
 }
 
+/**
+ * Displays the most recent action text inside a rounded, full-width surface.
+ *
+ * @param action The last action description to display. */
 @Composable
 private fun LastActionDisplay(action: String) {
     Surface(
@@ -185,6 +219,14 @@ private fun LastActionDisplay(action: String) {
     }
 }
 
+/**
+ * Displays a titled, scrollable surface showing the provided UI tree text.
+ *
+ * The content is presented with theme-aware colors and typography and constrained vertically
+ * so the tree text can be scrolled when it exceeds the visible area.
+ *
+ * @param tree The UI hierarchy text to display inside the scrollable area.
+ */
 @Composable
 private fun UiTreeDisplay(tree: String) {
     Surface(
@@ -220,10 +262,22 @@ private fun UiTreeDisplay(tree: String) {
     }
 }
 
-// Placeholder for scrollbar adapter since it's not available in all Compose versions
+/**
+ * Provides a ScrollState usable as a scrollbar adapter on Compose versions that do not expose a dedicated adapter.
+ *
+ * @return a `ScrollState` instance suitable for driving scrollbar position and observing scroll offset.
+ */
 @Composable
 private fun rememberScrollbarAdapter() = androidx.compose.foundation.rememberScrollState()
 
+/**
+ * Displays OCR output inside a rounded, themed surface with a header and scrollable content.
+ *
+ * Shows a fixed header "OCR Result:" followed by the provided text constrained to a maximum
+ * height and scrollable when content exceeds the space.
+ *
+ * @param text The OCR-recognized text to display.
+ */
 @Composable
 private fun OcrResultDisplay(text: String) {
     Surface(

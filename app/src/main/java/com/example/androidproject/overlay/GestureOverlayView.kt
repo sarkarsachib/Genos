@@ -70,6 +70,16 @@ class GestureOverlayView @JvmOverloads constructor(
         TAP
     }
     
+    /**
+     * Displays a temporary touch indicator at the given coordinates.
+     *
+     * Adds a TouchPoint of the specified type, invalidates the view to render it, and schedules
+     * automatic removal of that touch indicator after 2000 milliseconds.
+     *
+     * @param x X coordinate in view-local pixels where the touch indicator should be shown.
+     * @param y Y coordinate in view-local pixels where the touch indicator should be shown.
+     * @param type The visual type of the touch indicator (e.g., TAP, SWIPE_START, SWIPE_END, SCROLL).
+     */
     fun showTouch(x: Float, y: Float, type: TouchType = TouchType.TAP) {
         clearOldData()
         
@@ -86,6 +96,18 @@ class GestureOverlayView @JvmOverloads constructor(
         invalidate()
     }
     
+    /**
+     * Displays a visual swipe from the given start coordinates to the end coordinates.
+     *
+     * Adds a swipe path and start/end touch markers, clears stale overlay data first,
+     * schedules automatic removal of the gesture and its markers after 2500 ms, and
+     * invalidates the view to trigger a redraw.
+     *
+     * @param startX X coordinate of the swipe start in view-local pixels.
+     * @param startY Y coordinate of the swipe start in view-local pixels.
+     * @param endX X coordinate of the swipe end in view-local pixels.
+     * @param endY Y coordinate of the swipe end in view-local pixels.
+     */
     fun showSwipe(startX: Float, startY: Float, endX: Float, endY: Float) {
         clearOldData()
         
@@ -113,6 +135,17 @@ class GestureOverlayView @JvmOverloads constructor(
         invalidate()
     }
     
+    /**
+     * Displays a visual scroll gesture centered at the given coordinates in the specified direction.
+     *
+     * Creates multiple parallel swipe paths offset around the center to represent a scroll gesture,
+     * schedules the visualization to be removed after a short duration, and invalidates the view to trigger redraw.
+     *
+     * @param centerX X coordinate of the scroll's center.
+     * @param centerY Y coordinate of the scroll's center.
+     * @param direction Direction of the scroll (UP, DOWN, LEFT, RIGHT).
+     * @param distance Total distance from start to end used to compute the scroll paths; defaults to 300f.
+     */
     fun showScroll(centerX: Float, centerY: Float, direction: ScrollDirection, distance: Float = 300f) {
         clearOldData()
         
@@ -145,12 +178,28 @@ class GestureOverlayView @JvmOverloads constructor(
         invalidate()
     }
     
+    /**
+     * Removes gesture visualization data that has timed out.
+     *
+     * Touch points whose timestamp is older than 3000 milliseconds and gesture paths whose startTime is older than 3500 milliseconds are removed from their respective lists.
+     */
     private fun clearOldData() {
         val currentTime = System.currentTimeMillis()
         touchPoints.removeAll { currentTime - it.timestamp > 3000 }
         gesturePaths.removeAll { currentTime - it.startTime > 3500 }
     }
     
+    /**
+     * Renders the gesture overlay visuals (swipe paths, scroll paths, and touch indicators) onto the provided canvas.
+     *
+     * Draws swipe and scroll paths with distinct colors and stroke widths, and renders touch indicators:
+     * - Taps as a pink expanding/fading ripple with a persistent center dot (2 second fade-out).
+     * - Swipe start as a green marker labeled "START".
+     * - Swipe end as a red marker labeled "END".
+     * - Scroll indicators as blue dots.
+     *
+     * @param canvas The canvas to draw the gesture overlays on.
+     */
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         
@@ -242,6 +291,11 @@ class GestureOverlayView @JvmOverloads constructor(
         UP, DOWN, LEFT, RIGHT
     }
     
+    /**
+     * Cleans up resources when the view is detached from the window.
+     *
+     * Cancels the view's internal CoroutineScope to stop scheduled gesture removals and pending coroutines.
+     */
     override fun onDetachedFromWindow() {
         super.onDetachedFromWindow()
         scope.cancel() // Clean up coroutines
