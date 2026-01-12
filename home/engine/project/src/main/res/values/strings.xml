@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">GENOS Overlay</string>
+    <string name="accessibility_service_description">GENOS Input Emulator Service for automated interaction and accessibility features</string>
+</resources>
