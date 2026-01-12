@@ -76,6 +76,14 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Sets up the activity's Compose UI and binds UI actions to the activity's screen-capture handlers.
+     *
+     * Configures MaterialTheme and places MainScreen in a Surface, providing callbacks for starting,
+     * stopping, and requesting permissions for screen capture.
+     *
+     * @param savedInstanceState System-supplied Bundle containing the activity's previously saved state, if any.
+     */
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -133,6 +141,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Re-initializes the screen capture pipeline when the activity resumes if the app's accessibility service is enabled.
+     *
+     * If the accessibility service is active, this triggers (re)initialization of the screen capture coordinator so capture can continue after returning from settings or permission flows.
+     */
     override fun onResume() {
         super.onResume()
         // Check if we need to re-initialize after returning from permissions
@@ -141,17 +154,34 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Pauses screen capture when the activity is no longer visible.
+     *
+     * If a screen capture pipeline exists, it is stopped to release resources.
+     */
     override fun onPause() {
         super.onPause()
         // Pause capture when activity is not visible
         screenCaptureCoordinator?.stopPipeline()
     }
 
+    /**
+     * Perform final cleanup when the activity is being destroyed.
+     *
+     * Stops and releases the screen capture pipeline by invoking cleanup on the
+     * coordinator if one was initialized.
+     */
     override fun onDestroy() {
         super.onDestroy()
         screenCaptureCoordinator?.cleanup()
     }
 
+    /**
+     * Starts the app's screen-capture flow by either initializing capture or requesting accessibility permission.
+     *
+     * If the accessibility service is enabled, initializes the screen-capture pipeline; otherwise launches the
+     * accessibility permission flow so the user can enable the required service.
+     */
     private fun startScreenCapture() {
         if (isAccessibilityServiceEnabled()) {
             initializeScreenCapture()
@@ -160,11 +190,20 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Stops the active screen-capture pipeline (if any) and displays a short toast indicating capture stopped.
+     */
     private fun stopScreenCapture() {
         screenCaptureCoordinator?.stopPipeline()
         Toast.makeText(this, "Screen capture stopped", Toast.LENGTH_SHORT).show()
     }
 
+    /**
+     * Ensures the app has required permissions for screen capture by triggering the appropriate flow.
+     *
+     * If the accessibility service is not enabled, initiates the accessibility permission flow; otherwise
+     * initiates the screen-capture consent request.
+     */
     private fun requestPermissions() {
         if (!isAccessibilityServiceEnabled()) {
             requestAccessibilityPermission()
@@ -173,6 +212,12 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Starts initialization of the screen capture pipeline and shows a toast indicating success or failure.
+     *
+     * Ensures a ScreenCaptureCoordinator exists and is linked to the current accessibility service, then
+     * invokes its initialization routine and displays a short Toast reporting whether initialization succeeded.
+     */
     private fun initializeScreenCapture() {
         if (screenCaptureCoordinator == null) {
             screenCaptureCoordinator = ScreenCaptureCoordinator(this, this)
@@ -189,11 +234,19 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Opens the device's Accessibility settings so the user can enable the app's accessibility service.
+     */
     private fun requestAccessibilityPermission() {
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         accessibilityPermissionLauncher.launch(intent)
     }
 
+    /**
+     * Requests user consent to start screen capture through the ScreenCaptureCoordinator.
+     *
+     * If a coordinator is initialized, delegates the consent flow to it; does nothing otherwise.
+     */
     private fun requestScreenCaptureConsent() {
         screenCaptureCoordinator?.let { coordinator ->
             coordinator.requestScreenCaptureConsent()
@@ -201,6 +254,11 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    /**
+     * Determines whether this app's accessibility service is enabled in the system settings.
+     *
+     * @return `true` if the app's package is listed among enabled accessibility services, `false` otherwise.
+     */
     private fun isAccessibilityServiceEnabled(): Boolean {
         val enabledServices = Settings.Secure.getString(
             contentResolver,
@@ -210,6 +268,11 @@ class MainActivity : ComponentActivity() {
         return enabledServices?.contains(packageName) == true
     }
 
+    /**
+     * Displays a short Toast with the given text on the main (UI) thread.
+     *
+     * @param message The text to display in the Toast.
+     */
     private fun showToast(message: String) {
         runOnUiThread {
             Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
@@ -217,6 +280,15 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Composable UI that displays controls and status for requesting permissions and managing screen capture with OCR.
+ *
+ * Presents buttons to request required permissions, start and stop screen capture, and shows the most recent OCR result and feature list.
+ *
+ * @param onStartCapture Called when the user taps the "Start Screen Capture" button.
+ * @param onStopCapture Called when the user taps the "Stop Screen Capture" button.
+ * @param onRequestPermissions Called when the user taps the "Request Permissions" button.
+ */
 @Composable
 fun MainScreen(
     onStartCapture: () -> Unit,
@@ -290,6 +362,7 @@ fun MainScreen(
             modifier = Modifier.padding(top = 32.dp)
         )
     }
+}
 }
             MainScreen(
                 onLaunchOverlay = { checkAndLaunchOverlay() },
