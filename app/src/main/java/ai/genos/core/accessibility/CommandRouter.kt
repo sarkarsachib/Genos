@@ -26,7 +26,11 @@ class CommandRouter {
     }
     
     /**
-     * Execute an accessibility command
+     * Dispatches an AccessibilityCommand to the appropriate handler and reports the execution outcome.
+     *
+     * If a handler throws an exception, the function returns a failure result containing the exception message and the current timestamp.
+     *
+     * @returns A CommandResult describing whether execution succeeded, any returned data, an error message when applicable, and a timestamp. 
      */
     suspend fun execute(command: AccessibilityCommand, service: GenosAccessibilityService): CommandResult {
         return try {
@@ -51,6 +55,12 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Retrieves the current UI tree snapshot from the accessibility service.
+     *
+     * @return A CommandResult whose `success` is `true` if a snapshot was obtained, `false` otherwise.
+     *         `data` contains the snapshot when present, and `timestamp` is set to the current time.
+     */
     private suspend fun executeGetTreeSnapshot(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -67,6 +77,11 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Retrieve the current accessibility context from the provided service.
+     *
+     * @return `CommandResult` containing the current context in `data`, `success = true`, and a timestamp.
+     */
     private suspend fun executeGetCurrentContext(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -83,6 +98,15 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Fetches recent UI transitions and returns them wrapped in a CommandResult.
+     *
+     * The maximum number of transitions returned is taken from `command.parameters["limit"]`,
+     * defaulting to 10 when the parameter is absent or not an integer.
+     *
+     * @return A CommandResult with `success` set to `true`, `data` containing the list of recent transitions,
+     * and `timestamp` set to the current time in milliseconds.
+     */
     private suspend fun executeGetRecentTransitions(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -100,6 +124,15 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Performs the specified accessibility action on the node identified by `nodeId` in the command.
+     *
+     * @param command AccessibilityCommand containing:
+     *  - `nodeId` (String): identifier of the target node,
+     *  - `action` (Int): the accessibility action constant to perform,
+     *  - optional `arguments` (android.os.Bundle) to pass to the action.
+     * @return `CommandResult` with `success` set to `true` if the action was performed, `false` and an `error` message otherwise; `timestamp` reflects the operation time.
+     */
     private suspend fun executeAction(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -169,6 +202,12 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Finds accessibility nodes whose text or content description contains the provided search text.
+     *
+     * @param command AccessibilityCommand whose parameters may include a "text" String used for case-insensitive matching (defaults to empty string).
+     * @return `true` if the search completed successfully, with `data` containing a list of matching `UiNode` objects; `false` otherwise and `error` set with a message (for example when there is no active window or an exception occurs).
+     */
     private suspend fun executeFindNodeByText(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -212,6 +251,18 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Finds an accessibility node by its computed ID and returns its extracted tree representation.
+     *
+     * Expects `command.parameters["nodeId"]` to contain the target node ID. Returns a CommandResult with `data` set to the extracted node tree on success.
+     *
+     * @param command Contains parameters; `nodeId` (String) is required to identify the target node.
+     * @param service Provides access to the active window root and node extraction utilities.
+     * @return A CommandResult where `success` is `true` and `data` holds the extracted node tree when the node is found;
+     *         `success` is `false` and `error` contains one of:
+     *         - "No active window" if there is no root node,
+     *         - "Node not found: <nodeId>" if the node cannot be located,
+     *         - or the exception message if an unexpected error occurs. */
     private suspend fun executeFindNodeById(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -268,6 +319,17 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Scrolls the accessibility node identified by `nodeId` in the specified direction.
+     *
+     * The `command` must provide a `nodeId` parameter (String). An optional `direction`
+     * parameter may be provided with value `"forward"` (default) or `"backward"`.
+     *
+     * @param command Contains parameters `nodeId` and optional `direction`.
+     * @return `CommandResult` with `success` set to `true` if the scroll action succeeded, `false` otherwise.
+     *         On failure `error` contains a descriptive message (e.g., missing `nodeId`, no active window, or node not found)
+     *         and `timestamp` records the result time.
+     */
     private suspend fun executeScrollNode(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -337,6 +399,12 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Finds the accessibility node identified by `nodeId` in the given `command` and performs a click action on it.
+     *
+     * @param command AccessibilityCommand containing a `"nodeId"` parameter (String) that identifies the target node.
+     * @return A CommandResult whose `success` is `true` if the click action succeeded, `false` otherwise. When unsuccessful, the `error` contains a brief failure reason (e.g., missing `nodeId`, no active window, node not found, or an exception message). The result always includes a `timestamp`.
+     */
     private suspend fun executeClickNode(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -404,6 +472,21 @@ class CommandRouter {
         }
     }
     
+    /**
+     * Sets the text on an accessibility node identified by a nodeId in the command.
+     *
+     * Expects command.parameters to contain:
+     * - "nodeId": String identifying the target node.
+     * - "text": String to set (defaults to empty string if absent).
+     *
+     * The function returns a failure CommandResult with an explanatory `error` when:
+     * - "nodeId" is missing from parameters,
+     * - there is no active window,
+     * - the target node cannot be found,
+     * - or an exception occurs during execution.
+     *
+     * @return `CommandResult` with `success = true` if the ACTION_SET_TEXT request was performed successfully; otherwise `success = false` and `error` contains a human-readable message. The result always includes a `timestamp`.
+     */
     private suspend fun executeSetText(
         command: AccessibilityCommand, 
         service: GenosAccessibilityService
@@ -475,7 +558,14 @@ class CommandRouter {
         }
     }
     
-    // Helper methods
+    /**
+     * Recursively searches the given node and its descendants for a node whose computed id equals `targetId`.
+     *
+     * @param node The root node to start the search from.
+     * @param targetId The target identifier to match. The identifier is expected to be in the form
+     * "<className>_<viewIdResourceName>_<hashCode()>".
+     * @return The matching AccessibilityNodeInfo if found, or `null` if no matching node exists in the subtree.
+     */
     
     private fun findNodeByIdRecursive(node: AccessibilityNodeInfo, targetId: String): AccessibilityNodeInfo? {
         val nodeId = "${node.className}_${node.viewIdResourceName}_${node.hashCode()}"
@@ -494,6 +584,17 @@ class CommandRouter {
         return null
     }
     
+    /**
+     * Collects UiNode descriptors from the given accessibility node subtree whose text or content
+     * description contains the provided search string (case-insensitive).
+     *
+     * @param node Root accessibility node to search recursively.
+     * @param text Substring to match against node text and content description (case-insensitive).
+     * @return A list of UiNode objects for each matching node. Each UiNode includes a computed
+     * nodeId in the form "<className>_<viewIdResourceName>_<hashCode()>", class and resource names,
+     * text and contentDescription, basic state flags (clickable, focusable, enabled, visible), and
+     * placeholder values: `bounds = null`, `accessibilityAttributes = emptyMap()`, `children = emptyList()`.
+     */
     private fun findNodesByTextRecursive(node: AccessibilityNodeInfo, text: String): List<UiNode> {
         val foundNodes = mutableListOf<UiNode>()
         

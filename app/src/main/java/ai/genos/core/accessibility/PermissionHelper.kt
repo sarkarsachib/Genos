@@ -18,7 +18,9 @@ object PermissionHelper {
     private const val TAG = "PermissionHelper"
     
     /**
-     * Check if accessibility service is enabled
+     * Determines whether the app's Genos accessibility service is listed among enabled accessibility services.
+     *
+     * @return `true` if "ai.genos.core.accessibility.GenosAccessibilityService" for this package is enabled, `false` otherwise.
      */
     fun isAccessibilityServiceEnabled(context: Context): Boolean {
         val enabledServices = Settings.Secure.getString(
@@ -33,7 +35,11 @@ object PermissionHelper {
     }
     
     /**
-     * Check if accessibility service is enabled for specific package
+     * Determines whether the accessibility service for the specified package is enabled and currently running.
+     *
+     * @param context Context used to read system settings.
+     * @param packageName The package name whose accessibility service state to check.
+     * @return `true` if the accessibility service is enabled and actively started for the package, `false` otherwise.
      */
     fun isAccessibilityServiceEnabledForPackage(context: Context, packageName: String): Boolean {
         if (!isAccessibilityServiceEnabled(context)) {
@@ -46,7 +52,12 @@ object PermissionHelper {
     }
     
     /**
-     * Check if we have required permissions
+     * Determine whether the app has both the accessibility service enabled and overlay permission.
+     *
+     * For Android M (API 23) and above this verifies the SYSTEM_ALERT_WINDOW overlay permission; on earlier
+     * Android versions the overlay check is assumed to be granted.
+     *
+     * @return `true` if the accessibility service is enabled and overlay permission is granted, `false` otherwise.
      */
     fun hasRequiredPermissions(context: Context): Boolean {
         // Check for accessibility service permission (this is handled by the service itself)
@@ -63,7 +74,10 @@ object PermissionHelper {
     }
     
     /**
-     * Request accessibility service to be enabled
+     * Opens the system Accessibility Settings so the user can enable this app's accessibility service.
+     *
+     * @param activity Activity used to launch the settings screen.
+     * @param onResult Optional callback that is invoked immediately with `false` because a direct result is not provided by the settings activity; callers should re-check permission state when the activity resumes.
      */
     fun requestAccessibilityService(activity: Activity, onResult: ((Boolean) -> Unit)? = null) {
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
@@ -81,7 +95,15 @@ object PermissionHelper {
     }
     
     /**
-     * Request overlay permission (if needed)
+     * Opens the system overlay-permission settings for this app when the permission is not granted.
+     *
+     * If the device is running Android M (API 23) or higher and the app does not have the
+     * "draw over other apps" permission, this starts the system settings screen where the user
+     * can grant that permission. Does nothing on older Android versions or when the permission
+     * is already granted.
+     *
+     * @param activity The activity used to start the settings activity.
+     * @param requestCode The request code passed to startActivityForResult for result handling. Default is 1001.
      */
     fun requestOverlayPermission(activity: Activity, requestCode: Int = 1001) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(activity)) {
@@ -94,7 +116,13 @@ object PermissionHelper {
     }
     
     /**
-     * Show accessibility service setup dialog
+     * Display a non-cancelable dialog that guides the user to enable the app's accessibility service.
+     *
+     * The dialog explains why the accessibility permission is needed. Selecting "Enable" opens the
+     * system Accessibility Settings; selecting "Cancel" shows a brief toast informing the user that
+     * the accessibility service is required.
+     *
+     * @param activity Activity used to host the dialog and to start the accessibility settings intent.
      */
     fun showAccessibilitySetupDialog(activity: Activity) {
         val dialog = AlertDialog.Builder(activity)
@@ -116,7 +144,13 @@ object PermissionHelper {
     }
     
     /**
-     * Show permission status dialog
+     * Display a modal dialog that summarizes the app's accessibility service and overlay permission status.
+     *
+     * The dialog shows whether the GENOS accessibility service is enabled and whether the app has overlay
+     * (draw over other apps) permission. It provides actions to dismiss or, if the accessibility service
+     * is disabled, open the system accessibility settings to enable it.
+     *
+     * @param activity The Activity used to present the dialog and to launch the accessibility settings when requested.
      */
     fun showPermissionStatusDialog(activity: Activity) {
         val isEnabled = isAccessibilityServiceEnabled(activity)
@@ -146,7 +180,12 @@ object PermissionHelper {
     }
     
     /**
-     * Get permission status summary
+     * Create a snapshot of the app's current accessibility and overlay permission states.
+     *
+     * @return A `PermissionStatus` whose fields are:
+     * - `accessibilityServiceEnabled`: `true` if the app's accessibility service is enabled.
+     * - `overlayPermissionGranted`: `true` if the app can draw overlays (assumed `true` on API < 23).
+     * - `allPermissionsGranted`: `true` if all required permissions are granted.
      */
     fun getPermissionStatus(context: Context): PermissionStatus {
         return PermissionStatus(
@@ -161,14 +200,26 @@ object PermissionHelper {
     }
     
     /**
-     * Check if we should show permission rationale
+     * Indicates whether the app should present a permission rationale to the user.
+     *
+     * Checks whether the GENOS accessibility service is disabled for the given activity; if so, a rationale may be appropriate.
+     *
+     * @param activity The Activity used to determine the current accessibility service state.
+     * @return `true` if the accessibility service is not enabled and a rationale should be shown, `false` otherwise.
      */
     fun shouldShowPermissionRationale(activity: Activity): Boolean {
         return !isAccessibilityServiceEnabled(activity)
     }
     
     /**
-     * Handle permission result from activity
+     * Processes an activity result related to permission requests and handles the overlay permission response.
+     *
+     * Currently recognizes request code 1001 (overlay permission) and logs that the overlay permission request completed;
+     * other request codes are ignored.
+     *
+     * @param requestCode The integer request code originally supplied to startActivityForResult.
+     * @param resultCode The integer result code returned by the child activity.
+     * @param data Optional intent data returned by the child activity.
      */
     fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         when (requestCode) {
@@ -179,7 +230,13 @@ object PermissionHelper {
     }
     
     /**
-     * Monitor permission changes (call this from activity onResume)
+     * Checks accessibility and overlay permission status when an activity resumes and logs the result.
+     *
+     * Logs the current accessibility service enabled state and, if enabled, logs that all required
+     * permissions are granted and the service can start.
+     *
+     * @param activity The activity used to obtain current permission state. Should be called from the
+     * activity's onResume lifecycle callback.
      */
     fun onActivityResume(activity: Activity) {
         val isEnabled = isAccessibilityServiceEnabled(activity)
@@ -194,14 +251,19 @@ object PermissionHelper {
     }
     
     /**
-     * Get accessibility service settings intent
+     * Creates an Intent that opens the system Accessibility settings screen.
+     *
+     * @return An Intent that launches the device's Accessibility settings.
      */
     fun getAccessibilitySettingsIntent(): Intent {
         return Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
     }
     
     /**
-     * Get overlay permission settings intent
+     * Create an intent that opens the system overlay ("draw over other apps") permission screen for the specified package.
+     *
+     * @param packageName The package name whose overlay permission settings should be shown.
+     * @return An Intent targeting the system overlay permission settings for the given package.
      */
     fun getOverlayPermissionIntent(packageName: String): Intent {
         return Intent(

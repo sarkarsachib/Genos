@@ -20,6 +20,11 @@ class MainActivity : AppCompatActivity() {
     private lateinit var permissionButton: Button
     private lateinit var logButton: Button
     
+    /**
+     * Initializes the activity UI, toolbar, view bindings, click listeners, and logger, then refreshes the displayed state.
+     *
+     * Sets the content view, configures the app bar, binds UI components, wires button handlers, updates the UI to reflect current service and permission state, and initializes file-based logging.
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -34,18 +39,37 @@ class MainActivity : AppCompatActivity() {
         Logger.logInfo("MainActivity", "MainActivity created")
     }
     
+    /**
+     * Refreshes the activity UI and performs permission-related resume handling.
+     *
+     * Updates visible status information and forwards the resume event to the permission
+     * handling component so permission state and related dialogs are re-evaluated.
+     */
     override fun onResume() {
         super.onResume()
         updateUI()
         PermissionHelper.onActivityResume(this)
     }
     
+    /**
+     * Configures the activity's toolbar as the support action bar and sets its title to "GENOS Accessibility".
+     */
     private fun setupToolbar() {
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
         supportActionBar?.title = "GENOS Accessibility"
     }
     
+    /**
+     * Binds the activity's view fields to their corresponding views in the layout.
+     *
+     * Initializes:
+     * - `statusText` -> `R.id.status_text`
+     * - `startServiceButton` -> `R.id.start_service_button`
+     * - `stopServiceButton` -> `R.id.stop_service_button`
+     * - `permissionButton` -> `R.id.permission_button`
+     * - `logButton` -> `R.id.log_button`
+     */
     private fun initializeViews() {
         statusText = findViewById(R.id.status_text)
         startServiceButton = findViewById(R.id.start_service_button)
@@ -54,6 +78,14 @@ class MainActivity : AppCompatActivity() {
         logButton = findViewById(R.id.log_button)
     }
     
+    /**
+     * Attaches click handlers to the activity buttons to trigger service control, permission dialog, and log viewing.
+     *
+     * - Start button: starts the accessibility foreground service.
+     * - Stop button: stops the accessibility foreground service.
+     * - Permission button: shows the permission status dialog.
+     * - Log button: opens the log viewer.
+     */
     private fun setupClickListeners() {
         startServiceButton.setOnClickListener {
             startAccessibilityService()
@@ -72,6 +104,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    /**
+     * Starts the GENOS accessibility foreground service when required permissions are present.
+     *
+     * If required permissions are missing, shows the accessibility setup dialog and does nothing else.
+     * On successful start, displays a short toast and logs an informational message.
+     * On failure, logs the error and shows a long toast with the error message.
+     */
     private fun startAccessibilityService() {
         if (!PermissionHelper.hasRequiredPermissions(this)) {
             PermissionHelper.showAccessibilitySetupDialog(this)
@@ -92,6 +131,11 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    /**
+     * Stops the GenosForegroundService, displays a short Toast to the user, and logs the action.
+     *
+     * If stopping the service fails, logs the error and displays a long Toast containing the exception message.
+     */
     private fun stopAccessibilityService() {
         try {
             val serviceIntent = Intent(this, GenosForegroundService::class.java)
@@ -106,6 +150,14 @@ class MainActivity : AppCompatActivity() {
         }
     }
     
+    /**
+     * Refreshes the activity UI to reflect the current accessibility service state.
+     *
+     * Updates the statusText view with permission state, whether the service is running,
+     * current app context (package, activity, screen state), up to five recent transitions,
+     * and basic service statistics (total transitions and last heartbeat time).
+     * Also enables or disables the start and stop service buttons based on permission and running state.
+     */
     private fun updateUI() {
         val service = GenosAccessibilityService.getInstance()
         val serviceManager = GenosAccessibilityService.getServiceManager()
@@ -153,6 +205,11 @@ class MainActivity : AppCompatActivity() {
         stopServiceButton.isEnabled = serviceRunning
     }
     
+    /**
+     * Opens the log viewer activity with current log contents if available; otherwise shows a short toast.
+     *
+     * If logs are present, starts LogActivity and supplies the logs as the "log_contents" intent extra.
+     */
     private fun showLogs() {
         val logContents = Logger.getLogContents()
         if (logContents != null) {

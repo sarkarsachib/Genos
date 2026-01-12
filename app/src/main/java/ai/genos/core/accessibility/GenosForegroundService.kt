@@ -21,11 +21,19 @@ class GenosForegroundService : Service() {
         private const val NOTIFICATION_ID = 1002
         private const val TAG = "GenosForegroundService"
         
+        /**
+         * Starts the GenosForegroundService as a foreground service using the provided Context.
+         */
         fun startService(context: Context) {
             val intent = Intent(context, GenosForegroundService::class.java)
             context.startForegroundService(intent)
         }
         
+        /**
+         * Stops the Genos foreground service if it is running.
+         *
+         * @param context Context used to build and send the stop intent for the service.
+         */
         fun stopService(context: Context) {
             val intent = Intent(context, GenosForegroundService::class.java)
             context.stopService(intent)
@@ -36,6 +44,13 @@ class GenosForegroundService : Service() {
     private var isRunning = false
     private lateinit var serviceManager: AccessibilityServiceManager
     
+    /**
+     * Initializes the foreground service components and begins background monitoring.
+     *
+     * Obtains the GENOS accessibility service manager, creates the notification channel for
+     * the foreground notification, and starts the internal service thread that monitors
+     * the accessibility service lifecycle.
+     */
     override fun onCreate() {
         super.onCreate()
         Logger.logInfo(TAG, "Foreground service created")
@@ -49,6 +64,14 @@ class GenosForegroundService : Service() {
         startServiceThread()
     }
     
+    /**
+     * Promotes the service to a foreground service and marks the accessibility manager as running.
+     *
+     * @param intent The start intent supplied to the service, or null if none was provided.
+     * @param flags Additional data about this start request provided by the system.
+     * @param startId A unique integer representing this specific start request.
+     * @return `START_STICKY` to request the system restart the service if it is killed. 
+     */
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         Logger.logInfo(TAG, "Foreground service started")
         
@@ -61,10 +84,22 @@ class GenosForegroundService : Service() {
         return START_STICKY // Restart service if killed by system
     }
     
+    /**
+     * Indicates that this service does not support binding.
+     *
+     * @return `null` because the service does not support binding.
+     */
     override fun onBind(intent: Intent?): IBinder? {
         return null // Not a bound service
     }
     
+    /**
+     * Performs shutdown and cleanup when the foreground service is destroyed.
+     *
+     * Updates the GENOS accessibility service manager to indicate the service is not running,
+     * stops the internal monitoring thread, logs the destruction, and delegates to the base
+     * implementation.
+     */
     override fun onDestroy() {
         Logger.logInfo(TAG, "Foreground service destroyed")
         
@@ -77,6 +112,15 @@ class GenosForegroundService : Service() {
         super.onDestroy()
     }
     
+    /**
+     * Starts a background thread that monitors the GENOS accessibility service and manages its lifecycle.
+     *
+     * If the monitoring thread is already running this is a no-op. The created thread sets `isRunning`
+     * to true, repeatedly checks the current accessibility service instance and its `isServiceStarted`
+     * state, and logs or waits before retrying when the service appears stopped. The thread responds to
+     * interruptions and logs unexpected exceptions before exiting. The thread reference is stored in
+     * `serviceThread` and is started before this function returns.
+     */
     private fun startServiceThread() {
         if (isRunning) return
         
@@ -118,6 +162,11 @@ class GenosForegroundService : Service() {
         serviceThread?.start()
     }
     
+    /**
+     * Stops the internal monitoring thread used by the service.
+     *
+     * Signals the thread to exit, interrupts it, waits up to 5 seconds for termination, and clears its reference.
+     */
     private fun stopServiceThread() {
         isRunning = false
         serviceThread?.interrupt()
@@ -125,6 +174,12 @@ class GenosForegroundService : Service() {
         serviceThread = null
     }
     
+    /**
+     * Creates and registers the notification channel used by the foreground service on Android O and above.
+     *
+     * The channel is configured with low importance, no sound, and badges disabled. On devices older than
+     * Android O this function is a no-op.
+     */
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
@@ -142,6 +197,14 @@ class GenosForegroundService : Service() {
         }
     }
     
+    /**
+     * Builds the persistent foreground notification used to promote the GENOS accessibility service.
+     *
+     * The notification contains a content intent that opens MainActivity, an action to stop the service,
+     * a descriptive title and text, a small accessibility icon, low priority, and an ongoing flag suitable
+     * for use with startForeground.
+     *
+     * @return A configured Notification ready to be passed to startForeground. */
     private fun createServiceNotification(): Notification {
         val mainIntent = Intent(this, MainActivity::class.java)
         val pendingIntent = PendingIntent.getActivity(
