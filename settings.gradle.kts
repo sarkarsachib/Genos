@@ -15,5 +15,4 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "GenosCore"
-rootProject.name = "AndroidScaffold"
 include(":app")

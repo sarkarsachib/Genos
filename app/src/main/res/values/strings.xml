@@ -1,61 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">GENOS Accessibility</string>
-    <string name="accessibility_service_description">GENOS accessibility service monitors UI interactions, app transitions, and provides UI tree extraction capabilities for the GENOS platform.</string>
-    <string name="accessibility_service_summary">Provides accessibility monitoring and UI tree extraction for GENOS</string>
-    <string name="start_service">Start Service</string>
-    <string name="stop_service">Stop Service</string>
-    <string name="check_permissions">Check Permissions</string>
-    <string name="view_logs">View Logs</string>
-    <string name="refresh">Refresh</string>
-    <string name="clear_logs">Clear Logs</string>
-    <string name="accessibility_service_running">GENOS Accessibility Service is running</string>
-    <string name="accessibility_service_stopped">GENOS Accessibility Service is stopped</string>
-    <string name="service_status">Service Status</string>
-    <string name="permissions_status">Permissions Status</string>
-    <string name="app_context">App Context</string>
-    <string name="recent_transitions">Recent Transitions</string>
-    <string name="service_statistics">Service Statistics</string>
-    <string name="total_transitions">Total Transitions</string>
-    <string name="last_heartbeat">Last Heartbeat</string>
-    <string name="enable_accessibility">Enable Accessibility</string>
-    <string name="enable_accessibility_description">GENOS requires accessibility service permission to monitor UI interactions and app transitions.</string>
-    <string name="enable_accessibility_question">Would you like to open the accessibility settings to enable it?</string>
-    <string name="cancel">Cancel</string>
-    <string name="ok">OK</string>
-    <string name="yes">Yes</string>
-    <string name="no">No</string>
-    <string name="accessibility_service_required">Accessibility service is required</string>
-    <string name="service_starting">GENOS Accessibility Service starting...</string>
-    <string name="service_stopped">GENOS Accessibility Service stopped</string>
-    <string name="failed_to_start_service">Failed to start service: %1$s</string>
-    <string name="failed_to_stop_service">Failed to stop service: %1$s</string>
-    <string name="no_logs_available">No logs available</string>
-    <string name="service_logs">GENOS Service Logs</string>
-    <string name="current_app_context">Current App Context</string>
-    <string name="package">Package</string>
-    <string name="activity">Activity</string>
-    <string name="screen_on">Screen On</string>
-    <string name="granted">✅ Granted</string>
-    <string name="missing">❌ Missing</string>
-    <string name="active">✅ Active</string>
-    <string name="inactive">❌ Inactive</string>
-    <string name="overlay_permission_title">Overlay Permission</string>
-    <string name="overlay_permission_required">Overlay permission is required for some GENOS features</string>
-</resources>
-    <string name="app_name">Genos Core</string>
-    <string name="accessibility_service_description">Genos Accessibility Service provides enhanced input and interaction capabilities for the Genos AI assistant. This service can observe your screen content to provide contextual assistance.</string>
-    <string name="settings_title">Genos Settings</string>
-    <string name="permission_overlay_required">Overlay permission is required for Genos to function properly.</string>
-    <string name="permission_accessibility_required">Accessibility permission is required for Genos to observe screen content.</string>
-    <string name="service_running">Genos service is running</string>
-    <string name="service_stopped">Genos service stopped</string>
-    <string name="app_name">Android Project</string>
-    <string name="accessibility_service_label">Screen Capture OCR Service</string>
-    <string name="accessibility_service_description">Service for screen capture and OCR processing to enable intelligent UI interactions.</string>
-    <string name="screen_capture_consent_title">Screen Capture Permission</string>
-    <string name="screen_capture_consent_message">This app requires screen capture permission to perform OCR on screen content. The captured data is processed locally and may be sent to AI services for enhanced functionality.</string>
-    <string name="start_capture">Start Capture</string>
-    <string name="stop_capture">Stop Capture</string>
-    <string name="grant_permission">Grant Permission</string>
-    <string name="accessibility_permission_required">Accessibility permission is required for this feature.</string>
+    <string name="app_name">GENOS</string>
+
+    <!-- Accessibility -->
+    <string name="accessibility_service_label">GENOS Accessibility Service</string>
+    <string name="accessibility_service_description">GENOS helps automate tasks using accessibility features. It can tap, swipe, and interact with apps on your behalf.</string>
+    <string name="accessibility_status_checking">Checking accessibility service…</string>
+    <string name="accessibility_status_enabled">Accessibility Service: Enabled ✓</string>
+    <string name="accessibility_status_disabled">Accessibility Service: Disabled ✗</string>
+
+    <!-- Overlay -->
+    <string name="overlay_status_checking">Checking overlay permission…</string>
+    <string name="overlay_status_enabled">Overlay Permission: Granted ✓</string>
+    <string name="overlay_status_disabled">Overlay Permission: Denied ✗</string>
+    <string name="show_overlay">Show Overlay</string>
+    <string name="hide_overlay">Hide Overlay</string>
+    <string name="genos_overlay">GENOS HUD</string>
+    <string name="status_idle">Idle</string>
+    <string name="status_running">Running</string>
+    <string name="last_action_none">No action yet</string>
+
+    <!-- Buttons -->
+    <string name="execute_demo">Execute Demo Action Plan</string>
+    <string name="request_permissions">Request Permissions</string>
+
+    <!-- Permissions -->
+    <string name="permissions_required">Permissions Required</string>
+    <string name="permission_description">GENOS requires the following permissions to function properly:</string>
+    <string name="request_accessibility">Enable Accessibility Service</string>
+    <string name="request_overlay">Grant Overlay Permission</string>
+
+    <!-- Setup -->
+    <string name="setup_title">Welcome to GENOS</string>
+    <string name="setup_description">Let\'s configure GENOS for your device. This will take just a few minutes.</string>
+    <string name="setup_status_ready">Ready to begin setup</string>
+    <string name="setup_status_progress">Configuring…</string>
+    <string name="setup_status_complete">Setup complete!</string>
+    <string name="complete_setup">Complete Setup</string>
+    <string name="settings_title">Settings</string>
+
+    <!-- Actions -->
+    <string name="action_tap">Tap at (%1$d, %2$d)</string>
+    <string name="action_swipe">Swipe from (%1$d, %2$d) to (%3$d, %4$d)</string>
+    <string name="action_text">Type: %1$s</string>
+    <string name="action_scroll">Scroll %1$s</string>
+    <string name="action_launch">Launch: %1$s</string>
+    <string name="action_wait">Wait %1$dms</string>
+
+    <!-- Status -->
+    <string name="status_executing">Executing…</string>
+    <string name="status_completed">Completed</string>
+    <string name="status_failed">Failed</string>
+    <string name="status_cancelled">Cancelled</string>
+
+    <!-- Errors -->
+    <string name="error_accessibility_not_enabled">Accessibility service not enabled</string>
+    <string name="error_overlay_not_granted">Overlay permission not granted</string>
+    <string name="error_screen_capture_failed">Failed to capture screen</string>
+    <string name="error_api_failure">API call failed</string>
+
+    <!-- Debug -->
+    <string name="debug_mode">Debug Mode</string>
+    <string name="test_tap">Test Tap</string>
+    <string name="test_swipe">Test Swipe</string>
+    <string name="test_text">Test Text</string>
 </resources>

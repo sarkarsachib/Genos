@@ -2,58 +2,53 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Permissions -->
-    <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
-    
-    <!-- For Android 13+ (API 33) -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    
-    <!-- For Android 9.0+ (API 28) -->
-    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" 
-        tools:ignore="QueryAllPackagesPermission" />
+    <!-- Network Permissions -->
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
-    <application
-        android:name=".GenosAccessibilityApplication"
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
-
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-
-    <application
-        android:allowBackup="true"
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
-
-    <!-- Required permissions for Accessibility Service -->
+    <!-- Accessibility Service Permissions -->
     <uses-permission android:name="android.permission.BIND_ACCESSIBILITY_SERVICE"
         tools:ignore="ProtectedPermissions" />
 
-    <!-- System alert window for overlay functionality -->
+    <!-- Overlay/Window Manager Permissions -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+    <uses-permission android:name="android.permission.MANAGE_OVERLAY_PERMISSION" />
 
-    <!-- Foreground service permission (Android 9+) -->
+    <!-- Foreground Service Permissions -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_CAMERA" />
 
-    <!-- Write secure settings placeholder - typically requires system signature or root -->
-    <!-- This permission is typically not granted to third-party apps -->
-    <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS"
-        tools:ignore="ProtectedPermissions" />
+    <!-- Hardware Permissions -->
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-feature android:name="android.hardware.camera" android:required="false" />
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" />
 
-    <!-- Internet permission for potential ML Kit model downloads -->
-    <uses-permission android:name="android.permission.INTERNET" />
+    <!-- Audio Permissions -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
 
-    <!-- Media projection for screen capture -->
-    <uses-permission android:name="android.permission.CAPTURE_VIDEO_OUTPUT"
-        tools:ignore="ProtectedPermissions" />
+    <!-- Sensor Permissions -->
+    <uses-permission android:name="android.permission.BODY_SENSORS" />
+    <uses-permission android:name="android.permission.BODY_SENSORS_BACKGROUND" />
 
-    <!-- Wake lock for keeping service active -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <!-- Location Permissions (Optional) -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
 
-    <!-- Post notifications for foreground services (Android 13+) -->
+    <!-- Storage Permissions -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29" />
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+
+    <!-- Special Permissions -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES"
+        tools:ignore="QueryAllPackagesPermission" />
 
     <application
         android:name=".GenosApplication"
@@ -64,79 +59,39 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.GenosAccessibility"
-        tools:targetApi="31">
-        
-        android:theme="@style/Theme.GenosAccessibility">
-
-        <activity
-            android:name=".PermissionActivity"
-            android:exported="true"
-            android:theme="@style/Theme.GenosAccessibility">
         android:theme="@style/Theme.GenosCore"
-        tools:targetApi="31">
-
-        <!-- Main Activity -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@style/Theme.GenosAccessibility">
-            android:theme="@style/Theme.GenosCore">
-    <uses-permission android:name="android.permission.INTERNET" />
-    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MEDIA_PROJECTION" />
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <application
-        android:allowBackup="true"
-        android:label="@string/app_name"
-        android:supportsRtl="true"
-        android:theme="@style/Theme.AndroidProject"
         android:requestLegacyExternalStorage="true"
         tools:targetApi="31">
 
+        <!-- Main Launcher Activity -->
         <activity
-            android:name=".MainActivity"
+            android:name=".ui.MainActivity"
             android:exported="true"
-            android:theme="@style/Theme.AndroidProject">
+            android:label="@string/app_name"
+            android:theme="@style/Theme.GenosCore">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
+
+        <!-- Permission Request Activity -->
+        <activity
+            android:name=".ui.PermissionRequestActivity"
+            android:exported="false"
+            android:label="Permissions Required"
+            android:theme="@style/Theme.GenosCore" />
+
+        <!-- Setup/Onboarding Activity -->
+        <activity
+            android:name=".ui.SetupActivity"
+            android:exported="false"
+            android:label="Setup"
+            android:theme="@style/Theme.GenosCore" />
+
         <!-- GENOS Accessibility Service -->
-
-        <activity
-            android:name=".debug.InputDebugHarnessActivity"
-            android:exported="true"
-            android:label="Input Debug Harness"
-            android:theme="@style/Theme.AndroidProject" />
-
         <service
-            android:name=".GenosAccessibilityService"
-            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
-            android:exported="true">
-        <!-- Settings Activity for overlay permission -->
-        <activity
-            android:name=".ui.SettingsActivity"
-            android:exported="true"
-            android:label="@string/settings_title">
-            <intent-filter>
-                <action android:name="android.settings.MANAGE_OVERLAY_PERMISSION" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-        </activity>
-
-        <!-- Accessibility Service -->
-        <service
-            android:name=".service.GenosAccessibilityService"
-            android:exported="true"
-        <service
-            android:name=".accessibility.MyAccessibilityService"
+            android:name=".accessibility.GenosAccessibilityService"
             android:exported="true"
             android:label="@string/accessibility_service_label"
             android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE">
@@ -147,17 +102,36 @@
                 android:name="android.accessibilityservice"
                 android:resource="@xml/accessibility_service_config" />
         </service>
-        
-        <!-- Service for handling foreground service operations -->
+
+        <!-- Screen Capture Service (Foreground) -->
         <service
-            android:name=".GenosForegroundService"
+            android:name=".vision.ScreenCaptureService"
             android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="accessibility" />
-            
-        <!-- Boot receiver for starting service on device boot -->
+            android:foregroundServiceType="mediaProjection" />
+
+        <!-- Sensor Listener Service (Background) -->
+        <service
+            android:name=".sensors.SensorListenerService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="dataSync" />
+
+        <!-- Overlay Service -->
+        <service
+            android:name=".ui.OverlayService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Command Executor Service -->
+        <service
+            android:name=".execution.CommandExecutorService"
+            android:enabled="true"
+            android:exported="false" />
+
+        <!-- Boot Receiver for auto-start -->
         <receiver
-            android:name=".BootReceiver"
+            android:name=".GenosBootReceiver"
             android:enabled="true"
             android:exported="true">
             <intent-filter android:priority="1000">
@@ -167,8 +141,8 @@
                 <data android:scheme="package" />
             </intent-filter>
         </receiver>
-        
-        <!-- File provider for sharing logs -->
+
+        <!-- File Provider for sharing logs/screenshots -->
         <provider
             android:name="androidx.core.content.FileProvider"
             android:authorities="${applicationId}.fileprovider"
@@ -178,35 +152,6 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
-
-    </application>
-
-</manifest>
-
-    </application>
-
-</manifest>
-        <!-- Screen Capture Service -->
-        <service
-            android:name=".service.ScreenCaptureService"
-            android:enabled="true"
-            android:exported="false"
-            android:foregroundServiceType="mediaProjection" />
-
-        <!-- Overlay Service -->
-        <service
-            android:name=".service.OverlayService"
-            android:enabled="true"
-            android:exported="false" />
-
-        <!-- Input Processing Service -->
-        <service
-            android:name=".service.InputProcessingService"
-            android:enabled="true"
-        <service
-            android:name=".vision.ScreenCaptureService"
-            android:foregroundServiceType="mediaProjection"
-            android:exported="false" />
 
     </application>
 

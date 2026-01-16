@@ -1,521 +1,246 @@
-# GENOS Phase 1: Base System with Maximum Sensory Capability
+# GENOS Phase 1 - Android Initialization
 
-## Documentation Suite Overview
+A modular Android project implementing a WindowManager overlay with input emulation and command execution capabilities using accessibility services and Gemini AI integration.
 
-Welcome to the comprehensive documentation for GENOS (General Enhanced Neural Operating System) Phase 1: Base System with Maximum Sensory Capability. This documentation suite provides complete coverage of the system's architecture, implementation, API reference, practical use cases, and setup instructions.
+## Quick Start
 
-### 📁 Documentation Structure
+### Prerequisites
+- Android Studio Arctic Fox (2023.1.1) or later
+- Android SDK 34
+- JDK 17
+- Google Gemini API Key (optional - for production AI features)
 
-The complete documentation consists of 5 comprehensive markdown documents and a main README:
+### Build and Run
 
-| Document | Purpose | Word Count | Key Content |
-|----------|---------|------------|-------------|
-| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | System Architecture | 4,000+ words | Complete system overview, architecture layers, module breakdown, data flow, permission model, threading, state management, error handling, security model |
-| **[IMPLEMENTATION_SPECS.md](docs/IMPLEMENTATION_SPECS.md)** | Implementation Details | 3,000+ words | Detailed code structure, interfaces, configuration patterns, testing approaches, module specifications |
-| **[API_REFERENCE.md](docs/API_REFERENCE.md)** | Complete API Documentation | 2,000+ words | Public interfaces, method signatures, data models, error codes, usage examples, integration patterns |
-| **[USE_CASES_AND_SCENARIOS.md](docs/USE_CASES_AND_SCENARIOS.md)** | Practical Use Cases | 3,000+ words | 15+ detailed scenarios, implementation patterns, best practices, testing strategies |
-| **[SETUP_AND_INSTALLATION.md](docs/SETUP_AND_INSTALLATION.md)** | Development Setup | 1,500+ words | Environment setup, build configuration, dependency management, troubleshooting |
-| **[README.md](README.md)** | Documentation Index | - | This document - main entry point and navigation guide |
-
-**Total Documentation: 13,500+ words of production-ready content**
-
----
-
-## 🚀 Quick Start Guide
-
-### For Developers New to GENOS
-
-1. **Start Here**: Read the [Architecture Overview](#-architecture-overview) below
-2. **Setup Environment**: Follow [SETUP_AND_INSTALLATION.md](docs/SETUP_AND_INSTALLATION.md)
-3. **Understand Implementation**: Review [IMPLEMENTATION_SPECS.md](docs/IMPLEMENTATION_SPECS.md)
-4. **Explore API**: Reference [API_REFERENCE.md](docs/API_REFERENCE.md)
-5. **See Examples**: Study [USE_CASES_AND_SCENARIOS.md](docs/USE_CASES_AND_SCENARIOS.md)
-
-### For System Architects
-
-- **Primary Focus**: [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Complete system design and architecture
-- **Implementation Strategy**: [IMPLEMENTATION_SPECS.md](docs/IMPLEMENTATION_SPECS.md) - Detailed implementation patterns
-- **Use Cases**: [USE_CASES_AND_SCENARIOS.md](docs/USE_CASES_AND_SCENARIOS.md) - 15+ real-world scenarios
-
-### For API Integrators
-
-- **Primary Reference**: [API_REFERENCE.md](docs/API_REFERENCE.md) - Complete API documentation
-- **Integration Examples**: See integration patterns in [USE_CASES_AND_SCENARIOS.md](docs/USE_CASES_AND_SCENARIOS.md)
-- **Setup Instructions**: [SETUP_AND_INSTALLATION.md](docs/SETUP_AND_INSTALLATION.md)
-
----
-
-## 🏗️ Architecture Overview
-
-### System Vision
-
-GENOS Phase 1 represents a foundational mobile automation platform designed to provide **maximum sensory capability** and intelligent automation control. The system bridges human intention and device execution through sophisticated sensor integration, input emulation, and command orchestration.
-
-### Core Architecture Layers
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    USER INTERFACE LAYER                     │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│   Main Activity │   Overlay UI    │   Debug Interface       │
-│   - Settings    │   - HUD Display │   - Command Log         │
-│   - Permissions │   - Status Ind. │   - Test Controls       │
-│   - Monitoring  │   - Quick Act.  │   - Performance         │
-│   - Analytics   │   - Feedback    │   - Troubleshooting     │
-└─────────────────┴─────────────────┴─────────────────────────┘
-```
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    CORE BUSINESS LOGIC                      │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│   Command Exec. │   AI Integration│   State Management      │
-│   - Plan Exec.  │   - Gemini API  │   - Global State        │
-│   - Action Map. │   - Response    │   - Event Handling      │
-│   - Error Rec.  │   - Action Pars │   - Preference Mgmt     │
-│   - Sequence    │   - Context     │   - Activity Tracking   │
-└─────────────────┴─────────────────┴─────────────────────────┘
-```
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│              ANDROID SERVICES INTEGRATION                   │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│   Accessibility │   WindowManager │   System Services       │
-│   - Input Emu.  │   - Overlay UI  │   - App Management      │
-│   - UI Scanning │   - Floating    │   - Intent Handling     │
-│   - Gesture     │   - HUD Display │   - Package Info        │
-│   - Feedback    │   - Status UI   │   - Permission Mgmt     │
-└─────────────────┴─────────────────┴─────────────────────────┘
-```
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    HARDWARE ABSTRACTION                     │
-├─────────────────┬─────────────────┬─────────────────────────┤
-│   Camera        │   Microphone    │   Other Sensors         │
-│   - Image       │   - Audio       │   - Accelerometer       │
-│   - Video       │   - Voice       │   - Gyroscope           │
-│   - Face Det.   │   - Noise       │   - Proximity           │
-│   - Object ID   │   - Commands    │   - Light               │
-└─────────────────┴─────────────────┴─────────────────────────┘
-```
-
-### Key Components
-
-#### 1. MainActivity (UI Layer)
-- **Location**: `/home/engine/project/src/main/java/com/genos/overlay/ui/MainActivity.java`
-- **Responsibilities**: Primary user interface, permission management, service coordination
-- **Features**: Real-time status monitoring, debug interface, command logging
-
-#### 2. OverlayService (Window Manager)
-- **Location**: `/home/engine/project/src/main/java/com/genos/overlay/service/OverlayService.java`
-- **Responsibilities**: WindowManager overlay management, HUD display, floating interface
-- **Features**: Dynamic sizing, real-time updates, gesture support, error handling
-
-#### 3. InputEmulatorService (Accessibility)
-- **Location**: `/home/engine/project/src/main/java/com/genos/overlay/service/InputEmulatorService.java`
-- **Responsibilities**: Rootless input emulation, UI element detection, gesture simulation
-- **Features**: Precise coordinates, complex gestures, text input, system navigation
-
-#### 4. CommandExecutor (Orchestration)
-- **Location**: `/home/engine/project/src/main/java/com/genos/overlay/service/CommandExecutor.java`
-- **Responsibilities**: Action plan execution, command sequencing, error handling
-- **Features**: Parallel execution, dependency resolution, progress tracking, rollback capability
-
-#### 5. Model Classes (Data Layer)
-- **GeminiActionPlan**: Multi-command action plans
-- **ActionCommand**: Individual automation commands
-- **CommandParameters**: Command parameter containers
-- **GenosStatus**: Global system status
-
----
-
-## 🎯 Core Capabilities
-
-### Maximum Sensory Integration
-- **Camera**: Object detection, face recognition, gesture control, text recognition
-- **Microphone**: Voice commands, ambient noise detection, audio analysis
-- **Sensors**: Accelerometer, gyroscope, proximity, light, heart rate, GPS
-- **System**: App usage, notifications, system state, battery, network
-
-### Input Emulation
-- **Touch Events**: Precise taps, swipes, long presses, multi-touch
-- **Text Input**: Direct text injection into any field
-- **System Keys**: Home, back, recent apps, volume, power
-- **App Navigation**: Intelligent UI element detection and interaction
-
-### Intelligent Automation
-- **AI Integration**: Gemini API for natural language processing
-- **Context Awareness**: Environmental sensing, user activity recognition
-- **Self-Healing**: Error detection, recovery mechanisms, fallback strategies
-- **Privacy-First**: On-device processing, data minimization, transparent controls
-
-### Advanced Features
-- **Real-Time Feedback**: Comprehensive HUD with live system status
-- **Gesture Control**: Hand gesture recognition for hands-free operation
-- **Privilege Escalation**: Shizuku integration for root access capabilities
-- **Self-Coding**: Automatic fix generation and deployment for crashes
-
----
-
-## 📊 Use Case Highlights
-
-The documentation includes 15+ detailed use case scenarios:
-
-### Everyday Use Cases
-1. **Object Detection**: "Open Camera and Detect Objects in Room"
-2. **Health Monitoring**: "Monitor Heart Rate While Launching Health App"
-3. **Face Unlock**: "Detect Face Then Unlock Device"
-4. **Gesture Control**: "Hand Gestures for Navigation"
-5. **Context Awareness**: "If Loud Noise Detected, Lower Volume"
-
-### Advanced Automation
-6. **Voice Commands**: Natural language processing and execution
-7. **Multimodal Context**: Environmental awareness and adaptation
-8. **Activity Recognition**: Automatic mode switching based on user activity
-9. **Environmental Adaptation**: Tunnel detection and mode switching
-10. **Full Device Setup**: Complete automation of device configuration
-
-### Enterprise Features
-11. **Privilege Escalation**: Root access with Shizuku integration
-12. **Self-Coding**: Automatic crash analysis and fix deployment
-13. **Error Recovery**: Progressive fallback strategies
-14. **Privacy-First**: Maximum sensory capability with privacy controls
-15. **Real-Time Feedback**: Comprehensive system visualization
-
----
-
-## 🛠️ Development Workflow
-
-### Environment Setup
-1. **Prerequisites**: Android Studio Arctic Fox+, JDK 11+, 8GB+ RAM
-2. **SDK Configuration**: API Level 21+, Build Tools 30.0.3+
-3. **Dependencies**: Core Android, Lifecycle, Testing frameworks
-4. **Permissions**: Overlay, Accessibility, Camera, Microphone (optional)
-
-### Build Commands
 ```bash
-# Debug build
+# Build the project
 ./gradlew assembleDebug
 
-# Release build
-./gradlew assembleRelease
+# Install on connected device
+./gradlew installDebug
 
 # Run tests
 ./gradlew test
-
-# Install on device
-./gradlew installDebug
 ```
 
-### Testing Strategy
-- **Unit Tests**: Component-level testing with Mockito
-- **Integration Tests**: End-to-end automation flow testing
-- **UI Tests**: Espresso-based interface testing
-- **Performance Tests**: Memory, CPU, and responsiveness testing
+See [SETUP.md](SETUP.md) for detailed build and installation instructions.
 
----
+## Project Structure
 
-## 🔧 Key Technical Features
-
-### Threading Model
-- **Main Thread**: UI updates, user interactions, lifecycle management
-- **Worker Threads**: AI processing, command execution, network operations
-- **Accessibility Thread**: System-managed event processing
-
-### Error Handling
-- **Classification**: LOW, MEDIUM, HIGH, CRITICAL severity levels
-- **Recovery**: Automatic restart, fallback implementations, graceful degradation
-- **User Feedback**: Comprehensive error reporting and resolution guidance
-
-### Security Model
-- **Multi-Layer Security**: Platform, application, and communication security
-- **Permission Validation**: Strict permission checking and validation
-- **Data Protection**: Encryption, secure storage, network security
-- **Anti-Tampering**: Code integrity verification and anti-debugging
-
-### Performance Optimization
-- **Memory Management**: Weak references, bitmap caching, garbage collection optimization
-- **Async Processing**: Background thread pools, coroutine integration
-- **Caching**: Intelligent caching with TTL and automatic cleanup
-- **Battery Optimization**: Adaptive power management, sensor usage optimization
-
----
-
-## 📈 API Reference Highlights
-
-### Core Service APIs
-
-#### MainActivity API
-```java
-// Service management
-boolean bindToAccessibilityService()
-void unbindFromAccessibilityService()
-boolean isOverlayPermissionGranted()
-
-// Command execution
-void executeMockGeminiPlan()
-ActionCommand injectTestTap()
-ActionCommand injectTestSwipe()
-ActionCommand injectTestTypeText()
+```
+app/src/main/
+├── kotlin/ai/genos/core/
+│   ├── accessibility/      # AccessibilityService for input emulation
+│   ├── vision/            # Screen capture via MediaProjection
+│   ├── audio/             # Speech recognition (placeholder)
+│   ├── sensors/           # Device sensor monitoring
+│   ├── ai/                # Gemini AI integration
+│   │   ├── gemini/       # API client
+│   │   └── models/        # ActionPlan, GenosAction
+│   ├── execution/          # Command execution service
+│   ├── privilege/          # Shizuku integration (optional)
+│   ├── state/             # State management (placeholder)
+│   └── ui/                # Activities and overlay service
+└── res/                  # Android resources
+    ├── layout/            # XML layouts
+    ├── values/            # Strings, colors, themes
+    └── xml/               # Permissions, accessibility config
 ```
 
-#### OverlayService API
-```java
-// Lifecycle management
-void initialize()
-boolean showOverlay()
-boolean hideOverlay()
-GenosStatus getCurrentStatus()
+## Core Features
 
-// Status updates
-void updateOverlayDisplay()
-void setCallback(OverlayCallback callback)
+### 1. Accessibility Service
+- Rootless input emulation using `dispatchGesture()`
+- UI element discovery via AccessibilityNodeInfo
+- Tap, swipe, text input, scroll execution
+- Screen content extraction
+
+### 2. Screen Capture
+- MediaProjection API integration
+- Foreground service for screen capture
+- Bitmap conversion for vision analysis
+- Configurable capture settings
+
+### 3. AI Integration
+- Gemini API client using Retrofit
+- Action plan generation from screen content
+- Support for multiple action types:
+  - TAP, SWIPE, TEXT, SCROLL, LAUNCH, WAIT
+- Mock/demo action plan support
+
+### 4. Command Execution
+- Sequential action execution
+- Foreground service for reliability
+- Real-time status updates
+- Error handling and recovery
+
+### 5. UI Overlay
+- WindowManager floating HUD
+- Real-time status display
+- Last action feedback
+- Toggle functionality
+
+## Permissions
+
+### Required
+- `BIND_ACCESSIBILITY_SERVICE` - Input emulation
+- `SYSTEM_ALERT_WINDOW` - Overlay display
+- `FOREGROUND_SERVICE_MEDIA_PROJECTION` - Screen capture
+- `INTERNET` - AI API communication
+
+### Optional
+- `CAMERA` - Image capture
+- `RECORD_AUDIO` - Speech recognition
+- `BODY_SENSORS` - Gesture detection
+- `ACCESS_FINE_LOCATION` - Context-aware automation
+
+See [SETUP.md](SETUP.md) for complete permission guide.
+
+## Configuration
+
+### BuildConfig Fields
+
+```kotlin
+// Access in code:
+BuildConfig.GEMINI_API_KEY       // Your API key
+BuildConfig.GEMINI_ENDPOINT      // "https://generativelanguage.googleapis.com"
+BuildConfig.GEMINI_MODEL        // "gemini-2.0-flash"
+BuildConfig.DEBUG_MODE           // Boolean for logging
 ```
 
-#### InputEmulatorService API
-```java
-// Input emulation
-boolean executeCommand(ActionCommand command)
-boolean performTap(float x, float y, long duration)
-boolean performSwipe(float startX, float startY, float endX, float endY, long duration)
-boolean performTypeText(String text)
+### Setting API Key
 
-// Node interaction
-List<AccessibilityNodeInfo> findNodeByText(String text, boolean partialMatch)
-AccessibilityNodeInfo findNodeById(String resourceId)
+Create `gradle.properties` in project root:
+
+```properties
+GEMINI_API_KEY=your_api_key_here
 ```
 
-#### CommandExecutor API
-```java
-// Plan execution
-void executePlan(GeminiActionPlan plan)
-boolean executeSingleCommand(ActionCommand command)
+Without API key, the app uses demo/mock action plans.
 
-// Execution control
-boolean pauseExecution()
-boolean resumeExecution()
-boolean cancelExecution()
+## Documentation
 
-// Status monitoring
-ExecutionState getExecutionState()
-GeminiActionPlan getCurrentPlan()
+- **[SETUP.md](SETUP.md)** - Complete build and setup guide
+- **[architecture/STRUCTURE.md](architecture/STRUCTURE.md)** - Package structure and architecture
+
+## Key Components
+
+### GenosAccessibilityService
+Main accessibility service providing input emulation capabilities.
+
+```kotlin
+val service = GenosAccessibilityService.getInstance()
+service?.performTap(500f, 1000f, callback)
+service?.performSwipe(0f, 0f, 500f, 1000f, 300L, callback)
 ```
 
-### Data Models
+### ScreenCaptureService
+Foreground service for screen capture.
 
-#### ActionCommand
-```java
-// Factory methods
-ActionCommand.createTap(float x, float y, String commandId)
-ActionCommand.createSwipe(float startX, float startY, float endX, float endY, long duration, String commandId)
-ActionCommand.createTextInput(String text, String commandId)
+```kotlin
+val service = ScreenCaptureService.getInstance()
+service?.startCapture(resultCode, dataIntent)
+val bitmap = service?.captureScreenshot()
+```
 
-// Command types
-enum CommandType {
-    TAP, SWIPE, TYPE_TEXT, WAIT, HOME, BACK, RECENT_APPS,
-    SCREENSHOT, NOTIFICATION_PANEL, QUICK_SETTINGS,
-    APP_LAUNCH, KEY_EVENT, GESTURE, SCROLL, PINCH, ZOOM
+### GeminiClient
+AI client for action plan generation.
+
+```kotlin
+val client = GeminiClient.getInstance(context)
+val result = client.generateActionPlan(screenContent, userInstruction)
+```
+
+### CommandExecutorService
+Executes action plans.
+
+```kotlin
+val intent = Intent(context, CommandExecutorService::class.java).apply {
+    action = CommandExecutorService.ACTION_EXECUTE_PLAN
+    putExtra(CommandExecutorService.EXTRA_ACTION_PLAN, actionPlan)
 }
+startService(intent)
 ```
 
-#### GeminiActionPlan
-```java
-// Plan management
-public GeminiActionPlan(String planId, String description, List<ActionCommand> commands)
-public void execute()
-public void pause()
-public void resume()
-public void cancel()
+## Dependencies
 
-// Status tracking
-public ExecutionStatus getStatus()
-public int getCurrentCommandIndex()
-public ActionCommand getCurrentCommand()
+### Core
+- AndroidX Core (AppCompat, Material, ConstraintLayout)
+- Kotlin Coroutines 1.7.3
+- Jetpack (Lifecycle, Navigation, WorkManager, Room)
+- Jetpack Compose (optional)
+
+### AI & Vision
+- Google ML Kit (Text, Face, Pose, Barcode)
+- Tesseract OCR (tess-two 9.1.0)
+- Retrofit 2.9 + OkHttp 4.12
+- Gson for JSON parsing
+
+### Utilities
+- Timber 5.0.1 (Logging)
+- Accompanist (System UI, Permissions)
+- Shizuku 13.1.5 (Optional privilege escalation)
+
+## Build Configuration
+
+- **minSdk**: 24 (Android 7.0)
+- **targetSdk**: 34 (Android 14)
+- **compileSdk**: 34
+- **Kotlin**: 1.9.20
+- **Gradle**: 8.2.0
+- **Build Tools**: 34.0.0
+
+## Testing
+
+### Unit Tests
+```bash
+./gradlew test
 ```
 
----
+### Instrumented Tests
+```bash
+./gradlew connectedAndroidTest
+```
 
-## 🎨 Visual Design System
+### Manual Testing Workflow
+1. Install app on device
+2. Grant Accessibility Service permission
+3. Grant Overlay permission
+4. Start Screen Capture service
+5. Execute demo action plan
+6. Verify overlay status updates
 
-### Overlay Interface Design
-- **Floating HUD**: Semi-transparent overlay with drag-and-drop positioning
-- **Status Indicators**: Real-time system status with color-coded feedback
-- **Control Interface**: Quick action buttons for common operations
-- **Progress Visualization**: Live command execution progress with animations
+## Troubleshooting
 
-### Command Visualization
-- **Tap Effects**: Ripple animations at touch coordinates
-- **Swipe Paths**: Animated gesture trails showing movement
-- **Text Input**: Character-by-character animation during typing
-- **System Actions**: Visual feedback for system-level operations
+### Build Errors
+- **"Duplicate class"**: Check dependency versions in build.gradle.kts
+- **"SDK not found"**: Configure SDK path in Android Studio
+- **"R8 full mode"**: Increase heap size in gradle.properties
 
-### Real-Time Feedback
-- **System Dashboard**: Live metrics display with performance indicators
-- **Sensor Status**: Real-time sensor data with confidence indicators
-- **Execution Monitor**: Command progress with timing estimates
-- **Error Visualization**: Clear error indicators with resolution guidance
+### Runtime Errors
+- **"Accessibility service not enabled"**: Enable in Settings > Accessibility
+- **"Overlay not showing"**: Grant "Display over other apps" permission
+- **"Screen capture failed"**: Start foreground service before capture
+- **"Actions not executing"**: Verify service has canPerformGestures flag
 
----
+## Development
 
-## 🔒 Security and Privacy
+### Branching
+Current branch: `feat-genos-phase1-android-init`
 
-### Permission Model
-- **Basic Permissions**: Runtime permissions for internet, storage, network state
-- **System Permissions**: Special permissions for overlay and accessibility services
-- **Advanced Permissions**: Optional root access through Shizuku integration
-- **Privacy Controls**: Granular sensor access with transparent data usage
+### Code Style
+- Kotlin-first with coroutines
+- Timber for logging
+- Result types for error handling
+- Clear separation of concerns
 
-### Data Protection
-- **On-Device Processing**: All AI processing happens locally
-- **Data Minimization**: Automatic deletion of temporary data
-- **Encryption**: Secure storage of sensitive information
-- **Network Security**: Certificate pinning and secure API communication
+## License
 
-### Privacy-First Features
-- **Consent Management**: Explicit opt-in for each sensor capability
-- **Data Anonymization**: Automatic removal of personal identifiers
-- **Transparency Dashboard**: Real-time display of data usage
-- **User Controls**: Complete control over data retention and sharing
+This project is part of the GENOS initiative for AI-powered device automation.
 
----
+## Support
 
-## 📚 Documentation Index
-
-### Quick Navigation Links
-
-| Document | Start Reading | Key Sections |
-|----------|---------------|--------------|
-| **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** | [System Overview](#system-overview) | Architecture Layers, Module Breakdown, Data Flow, Security Model |
-| **[IMPLEMENTATION_SPECS.md](docs/IMPLEMENTATION_SPECS.md)** | [Code Structure](#code-structure) | Module Specifications, Interfaces, Configuration, Testing |
-| **[API_REFERENCE.md](docs/API_REFERENCE.md)** | [MainActivity API](#mainactivity-api) | Method Signatures, Data Models, Error Codes, Examples |
-| **[USE_CASES_AND_SCENARIOS.md](docs/USE_CASES_AND_SCENARIOS.md)** | [Object Detection](#use-case-1-open-camera-and-detect-objects-in-room) | 15+ Detailed Scenarios, Implementation Patterns |
-| **[SETUP_AND_INSTALLATION.md](docs/SETUP_AND_INSTALLATION.md)** | [Development Environment](#development-environment-setup) | Environment Setup, Build Configuration, Troubleshooting |
-
-### Cross-Document References
-
-#### Architecture to Implementation
-- **Architecture Layers** → [Implementation Module Breakdown](docs/IMPLEMENTATION_SPECS.md#module-breakdown)
-- **Data Flow Diagrams** → [API Integration Patterns](docs/API_REFERENCE.md#integration-patterns)
-- **Security Model** → [Privacy-First Use Cases](docs/USE_CASES_AND_SCENARIOS.md#use-case-14-privacy-first-sensor-usage)
-
-#### API Reference to Use Cases
-- **MainActivity API** → [Voice Command Execution](docs/USE_CASES_AND_SCENARIOS.md#use-case-6-voice-command-execution)
-- **CommandExecutor API** → [Full Device Automation](docs/USE_CASES_AND_SCENARIOS.md#use-case-11-full-device-automation-sequence)
-- **InputEmulatorService API** → [Gesture Control](docs/USE_CASES_AND_SCENARIOS.md#use-case-4-gesture-control---hand-gestures-for-navigation)
-
-#### Setup to Testing
-- **Development Setup** → [Testing Strategies](docs/IMPLEMENTATION_SPECS.md#testing-approach-per-module)
-- **Build Configuration** → [Performance Testing](docs/USE_CASES_AND_SCENARIOS.md#performance-testing)
-- **Troubleshooting** → [Error Recovery](docs/USE_CASES_AND_SCENARIOS.md#use-case-13-error-recovery-and-fallback)
-
----
-
-## 🚀 Getting Started Checklist
-
-### Environment Setup
-- [ ] Install Android Studio Arctic Fox or newer
-- [ ] Configure Android SDK (API 21-33)
-- [ ] Set up JDK 11 or newer
-- [ ] Clone GENOS repository
-- [ ] Import project into Android Studio
-
-### Project Configuration
-- [ ] Sync Gradle dependencies
-- [ ] Configure build variants
-- [ ] Set up Gemini API key
-- [ ] Configure local.properties
-- [ ] Build debug APK successfully
-
-### Permission Setup
-- [ ] Grant overlay permission
-- [ ] Enable accessibility service
-- [ ] Configure camera permissions (optional)
-- [ ] Set up microphone access (optional)
-- [ ] Test permission flow
-
-### Testing and Validation
-- [ ] Run unit tests
-- [ ] Execute instrumentation tests
-- [ ] Test on emulator
-- [ ] Test on physical device
-- [ ] Verify all permissions work
-
-### Development Workflow
-- [ ] Review architecture documentation
-- [ ] Understand API reference
-- [ ] Study implementation patterns
-- [ ] Explore use case examples
-- [ ] Set up debugging environment
-
----
-
-## 🤝 Contributing
-
-### Documentation Contributions
-- **Accuracy**: All documentation must be technically accurate and up-to-date
-- **Completeness**: Cover all major features and edge cases
-- **Clarity**: Use clear, concise language with proper technical terminology
-- **Examples**: Include practical code examples for all major concepts
-- **Cross-References**: Link related sections across documents
-
-### Code Contributions
-- **Architecture Compliance**: Follow established architectural patterns
-- **Documentation**: Update relevant documentation for any code changes
-- **Testing**: Include comprehensive tests for new features
-- **Performance**: Maintain or improve system performance
-- **Security**: Follow security best practices and maintain privacy controls
-
-### Issue Reporting
-- **Bug Reports**: Use GitHub issues with detailed reproduction steps
-- **Feature Requests**: Describe use cases and implementation approach
-- **Documentation Issues**: Point to specific sections needing clarification
-- **Performance Issues**: Include device specs and performance metrics
-
----
-
-## 📞 Support and Community
-
-### Getting Help
-- **Documentation**: Start with the comprehensive documentation suite
-- **FAQ**: Check frequently asked questions in each document
-- **Troubleshooting**: Use the troubleshooting guide in [SETUP_AND_INSTALLATION.md](docs/SETUP_AND_INSTALLATION.md)
-- **Error Recovery**: Study error recovery patterns in [USE_CASES_AND_SCENARIOS.md](docs/USE_CASES_AND_SCENARIOS.md)
-
-### Community Resources
-- **GitHub Discussions**: Technical discussions and feature requests
-- **Issue Tracking**: Bug reports and feature requests
-- **Code Examples**: Sample implementations in documentation
-- **Best Practices**: Architecture and implementation guidelines
-
----
-
-## 📄 License and Copyright
-
-This documentation and the GENOS Phase 1 system are provided under the MIT License. See the LICENSE file in the project root for complete licensing information.
-
----
-
-## 🎯 Next Steps
-
-### For Immediate Development
-1. **Quick Start**: Follow the [Setup and Installation Guide](docs/SETUP_AND_INSTALLATION.md)
-2. **API Understanding**: Review the [API Reference](docs/API_REFERENCE.md)
-3. **First Implementation**: Study the [Use Cases](docs/USE_CASES_AND_SCENARIOS.md) for inspiration
-
-### For Architecture Planning
-1. **System Design**: Study the [Architecture Document](docs/ARCHITECTURE.md)
-2. **Implementation Strategy**: Review [Implementation Specifications](docs/IMPLEMENTATION_SPECS.md)
-3. **Integration Patterns**: Understand service interactions and data flows
-
-### For Advanced Features
-1. **AI Integration**: Study multimodal context understanding use cases
-2. **Privacy Implementation**: Review privacy-first sensor usage patterns
-3. **Advanced Automation**: Explore self-coding and error recovery capabilities
-
----
-
-**Total Documentation Suite: 13,500+ words | 5 Comprehensive Documents | Production-Ready**
-
-*This README serves as the central navigation hub for the complete GENOS Phase 1 documentation suite. Each document provides detailed, production-ready information for developers, architects, and integrators working with the system.*
+For issues:
+1. Check [SETUP.md](SETUP.md) troubleshooting section
+2. Review architecture in [architecture/STRUCTURE.md](architecture/STRUCTURE.md)
+3. Check logcat: `adb logcat | grep GENOS`

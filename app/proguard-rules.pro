@@ -1,33 +1,66 @@
-# Add project specific ProGuard rules here.
-# You can control the set of applied configuration files using the
-# proguardFiles setting in build.gradle.
-#
-# For more details, see
-#   http://developer.android.com/guide/developing/tools/proguard.html
+# Retrofit
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+-keepattributes *Annotation*
+-keep class sun.misc.Unsafe { *; }
+-keep class com.google.gson.** { *; }
+-keepattributes Signature
+-keepattributes *Annotation*
 
-# If your project uses WebView with JS, uncomment the following
-# and specify the fully qualified class name to the JavaScript interface
-# class:
-#-keepclassmembers class fqcn.of.javascript.interface.for.webview {
-#   public *;
-#}
+# OkHttp
+-dontwarn okhttp3.**
+-keep class okhttp3.** { *; }
+-keep interface okhttp3.** { *; }
 
-# Uncomment this to preserve the line number information for
-# debugging stack traces.
-#-keepattributes SourceFile,LineNumberTable
-
-# If you keep the line number information, uncomment this to
-# hide the original source file name.
-#-renamesourcefileattribute SourceFile
-
-# Keep ML Kit classes
+# Google ML Kit
 -keep class com.google.mlkit.** { *; }
--dontwarn com.google.mlkit.**
+-keepattributes *Annotation*
 
-# Keep Tesseract classes
--keep class com.googlecode.tesseract.** { *; }
--dontwarn com.googlecode.tesseract.**
-# By default, the flags in this file are appended to flags specified
-# in /files/proguard-android-optimize.txt
-# You can edit the include path and order by changing the proguardFiles
-# directive in build.gradle.
+# Tesseract
+-keep class com.rmtheis.tesstwo.** { *; }
+
+# Timber
+-keep class timber.log.Timber { *; }
+-keepclassmembers class timber.log.Timber { *; }
+
+# Room
+-keep class * extends androidx.room.RoomDatabase
+-dontwarn androidx.room.paging.**
+-keep @androidx.room.Entity class *
+-keepclassmembers class * extends androidx.room.RoomDatabase {
+    <methods>;
+}
+
+# Shizuku
+-keep class dev.rikka.shizuku.** { *; }
+
+# Gson
+-keepattributes Signature
+-keepattributes *Annotation*
+-dontwarn sun.misc.**
+-keep class * implements com.google.gson.TypeAdapter
+-keep class * implements com.google.gson.TypeAdapterFactory
+-keep class * implements com.google.gson.JsonSerializer
+-keep class * implements com.google.gson.JsonDeserializer
+
+# Kotlin Coroutines
+-keepnames kotlinx.coroutines.internal.MainDispatcherFactory {}
+-keepnames kotlinx.coroutines.CoroutineExceptionHandler {}
+
+# GENOS specific
+-keep class ai.genos.core.** { *; }
+-keepclassmembers class ai.genos.core.** { *; }
+-keepattributes *Annotation*
+-keep class ai.genos.core.ai.models.** { *; }
+-keepclassmembers class ai.genos.core.ai.models.** { *; }
+
+# Accessibility Service
+-keep class ai.genos.core.accessibility.GenosAccessibilityService { *; }
+
+# View Binding
+-keep public class * extends androidx.viewbinding.ViewBinding {
+    public static *** inflate(android.view.LayoutInflater);
+    public static *** inflate(android.view.LayoutInflater, android.view.ViewGroup, boolean);
+}
