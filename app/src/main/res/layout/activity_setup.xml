@@ -4,14 +4,15 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".ui.MainActivity">
+    android:padding="16dp"
+    tools:context=".ui.SetupActivity">
 
     <TextView
-        android:id="@+id/title_text"
+        android:id="@+id/setup_title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/app_name"
-        android:textSize="24sp"
+        android:text="@string/setup_title"
+        android:textSize="28sp"
         android:textStyle="bold"
         android:layout_marginTop="32dp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -19,55 +20,48 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/accessibility_status"
-        android:layout_width="wrap_content"
+        android:id="@+id/setup_description"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="@string/accessibility_status_checking"
+        android:text="@string/setup_description"
         android:textSize="16sp"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/title_text" />
+        app:layout_constraintTop_toBottomOf="@id/setup_title" />
+
+    <ProgressBar
+        android:id="@+id/setup_progress"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="32dp"
+        android:max="100"
+        android:progress="0"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/setup_description" />
 
     <TextView
-        android:id="@+id/overlay_status"
+        android:id="@+id/setup_status"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/overlay_status_checking"
-        android:textSize="16sp"
+        android:text="@string/setup_status_ready"
+        android:textSize="14sp"
         android:layout_marginTop="16dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/accessibility_status" />
+        app:layout_constraintTop_toBottomOf="@id/setup_progress" />
 
     <Button
-        android:id="@+id/overlay_toggle_button"
+        android:id="@+id/setup_complete_button"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/show_overlay"
+        android:text="@string/complete_setup"
         android:layout_marginTop="32dp"
+        android:enabled="false"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/overlay_status" />
-
-    <Button
-        android:id="@+id/execute_demo_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/execute_demo"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/overlay_toggle_button" />
-
-    <Button
-        android:id="@+id/permissions_button"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/request_permissions"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/execute_demo_button" />
+        app:layout_constraintTop_toBottomOf="@id/setup_status" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

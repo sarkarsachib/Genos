@@ -1,8 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <full-backup-content>
-    <include domain="file" path="logs/"/>
-    <exclude domain="file" path="logs/accessibility_service.log"/>
-</full-backup-content>
-    <!-- Exclude sensitive or temporary files -->
+    <include domain="sharedpref" path="." />
     <exclude domain="sharedpref" path="device.xml" />
 </full-backup-content>
